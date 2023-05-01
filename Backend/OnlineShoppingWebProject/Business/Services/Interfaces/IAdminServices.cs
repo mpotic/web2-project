@@ -1,6 +1,6 @@
 ﻿namespace Business.Services
 {
-	public class UserAuth : IUserAuth
+	public interface IAdminServices
 	{
 	}
 }

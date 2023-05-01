@@ -1,6 +1,6 @@
 ﻿namespace Business.TokenHelper
 {
-	public enum UserClaims
+	public enum UserRole
 	{
 		Admin,
 		Customer,

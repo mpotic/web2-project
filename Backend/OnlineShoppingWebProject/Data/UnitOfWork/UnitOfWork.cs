@@ -10,6 +10,12 @@ namespace Data.UnitOfWork
 		public UnitOfWork(OnlineShopDbContext context)
 		{
 			_context = context;
+			AdminRepository = new AdminRepository(context);
+			CustomerRepository = new CustomerRepository(context);
+			SellerRepository = new SellerRepository(context);
+			ArticleRepository = new ArticleRepository(context);
+			ItemRepository = new ItemRepository(context);
+			OrderRepository = new OrderRepository(context);
 		}
 
 		public IAdminRepository AdminRepository { get; set; }

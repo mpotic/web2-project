@@ -1,7 +1,7 @@
 using AutoMapper;
 using Business.TokenHelper;
 using Data.Context;
-using Data.Mapping;
+using Business.Mapping;
 using Data.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -13,12 +13,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Business.Services;
+using Data.UnitOfWork;
 
 namespace WebAPI
 {
 	public class Startup
 	{
 		private readonly string _cors = "cors";
+
+		private readonly int sslPort = 44301;
 
 		public Startup(IConfiguration configuration)
 		{
@@ -41,7 +45,11 @@ namespace WebAPI
 
 			AddRepositories(services);
 
-			services.AddScoped<IUserTokenIssuer>(sp => new UserTokenIssuer(Configuration["SecretKey"]));
+			services.AddScoped<IUserTokenIssuer, UserTokenIssuer>();
+
+			services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+			services.AddScoped<IUserAuthService, UserAuthService>();
 
 			ConfigureMapping(services);
 		}
@@ -146,8 +154,8 @@ namespace WebAPI
 				  ValidateAudience = false,
 				  ValidateLifetime = true,
 				  ValidateIssuerSigningKey = true,
-				  ValidIssuer = "http://localhost:44398",
-				  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
+				  ValidIssuer = $"http://localhost:{sslPort}",
+				  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"])),
 			  };
 		  });
 		}

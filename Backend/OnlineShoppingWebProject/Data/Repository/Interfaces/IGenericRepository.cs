@@ -10,8 +10,10 @@ namespace Data.Repository
 
 		IEnumerable<T> GetAll();
 		
-		IEnumerable<T> Find(Expression<Func<T, bool>> expression);
+		IEnumerable<T> FindAll(Expression<Func<T, bool>> expression);
 		
+		T FindFirst(Expression<Func<T, bool>> expression);
+
 		void Add(T entity);
 		
 		void AddRange(IEnumerable<T> entities);

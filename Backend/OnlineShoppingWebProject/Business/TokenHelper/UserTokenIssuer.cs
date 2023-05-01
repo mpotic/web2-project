@@ -1,4 +1,5 @@
 ﻿using Data.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -12,18 +13,18 @@ namespace Business.TokenHelper
 	{
 		string _key;
 
-		public UserTokenIssuer(string key)
+		public UserTokenIssuer(IConfiguration configuration)
 		{
-			_key = key;
+			_key = configuration.GetSection("SecretKey").Value;
 		}
 
-		public string IssueUserJWT(IEnumerable<Claim> claims)
+		public string IssueJwt(IEnumerable<Claim> claims)
 		{
 			SymmetricSecurityKey secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
 			var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
 			var tokenOptions = new JwtSecurityToken(
-				issuer: "http://localhost:4000", 
+				issuer: "http://localhost:44301", 
 				claims: claims, 
 				expires: DateTime.Now.AddMinutes(360),
 				signingCredentials: signinCredentials
@@ -34,43 +35,62 @@ namespace Business.TokenHelper
 			return token;
 		}
 
-		public string IssueAdminJWT(IAdmin admin)
+		public string IssueAdminJwt(IAdmin admin)
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
-				new Claim(ClaimTypes.Role, UserClaims.Admin.ToString()),
-				new Claim(ClaimTypes.NameIdentifier, admin.Username)
+				new Claim(ClaimTypes.Role, UserRole.Admin.ToString()),
+				new Claim(ClaimTypes.NameIdentifier, admin.Username),
+				new Claim("role", UserRole.Admin.ToString())
 			};
 
-			string token = IssueUserJWT(claims);
+			string token = IssueJwt(claims);
 
 			return token;
 		}
 
-		public string IssueCostumerJWT(ICustomer customer)
+		public string IssueCostumerJwt(ICustomer customer)
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
-				new Claim(ClaimTypes.Role, UserClaims.Customer.ToString()),
+				new Claim(ClaimTypes.Role, UserRole.Customer.ToString()),
 				new Claim(ClaimTypes.NameIdentifier, customer.Username)
 			};
 
-			string token = IssueUserJWT(claims);
+			string token = IssueJwt(claims);
 
 			return token;
 		}
 
-		public string IssueSellerJWT(ISeller seller)
+		public string IssueSellerJwt(ISeller seller)
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
-				new Claim(ClaimTypes.Role, UserClaims.Seller.ToString()),
+				new Claim(ClaimTypes.Role, UserRole.Seller.ToString()),
 				new Claim(ClaimTypes.NameIdentifier, seller.Username)
 			};
 
-			string token = IssueUserJWT(claims);
+			string token = IssueJwt(claims);
 
 			return token;
+		}
+
+		public string IssueUserJwt(IUser user)
+		{
+			if (user.GetType().Equals(typeof(Admin)))
+			{
+				return IssueAdminJwt((Admin)user);
+			}
+			else if (user.GetType().Equals(typeof(Customer)))
+			{
+				return IssueCostumerJwt((Customer)user);
+			}
+			else if (user.GetType().Equals(typeof(Seller)))
+			{
+				return IssueSellerJwt((Seller)user);
+			}
+
+			return null;
 		}
 	}
 }

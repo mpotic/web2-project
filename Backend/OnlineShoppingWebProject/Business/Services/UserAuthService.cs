@@ -5,12 +5,13 @@ using Business.TokenHelper;
 using Business.Util;
 using Data.Models;
 using Data.UnitOfWork;
+using System.IO;
 
 namespace Business.Services
 {
 	public class UserAuthService : IUserAuthService
 	{
-		private IUserTokenIssuer _userTokenIssuer;
+		private IUserTokenIssuer _tokenIssuer;
 
 		private IUnitOfWork _unitOfWork;
 
@@ -22,21 +23,21 @@ namespace Business.Services
 
 		public UserAuthService(IUserTokenIssuer userTokenIssuer, IUnitOfWork unitOfWork, IMapper mapper)
 		{
-			_userTokenIssuer = userTokenIssuer;
+			_tokenIssuer = userTokenIssuer;
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			userHelper = new UserHelper(_unitOfWork);
 		}
 
-		public IServiceOperationResult LoginUser(LoginUserDTO loginDto)
+		public IServiceOperationResult LoginUser(LoginUserDto loginDto)
 		{
 			IServiceOperationResult operationResult;
 
 			IUser user = userHelper.FindUserByUsername(loginDto.Username);
 
-			if(user == null)
+			if (user == null)
 			{
-				operationResult = new ServiceOperationResult(false,ServiceOperationErrorCode.NotFound);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
 				return operationResult;
 			}
 
@@ -46,7 +47,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			string token = _userTokenIssuer.IssueUserJwt(user);
+			string token = _tokenIssuer.IssueUserJwt(user);
 
 			if (token == null)
 			{
@@ -59,7 +60,7 @@ namespace Business.Services
 			return operationResult;
 		}
 
-		public IServiceOperationResult RegisterUser(RegisterUserDTO registerDto)
+		public IServiceOperationResult RegisterUser(RegisterUserDto registerDto)
 		{
 			IServiceOperationResult operationResult;
 
@@ -70,30 +71,16 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			registerDto.Password = authHelper.HashPassword(registerDto.Password);
-
-			if(authHelper.IsPasswordWeak(registerDto.Password) || !authHelper.IsEmailValid(registerDto.Email))
+			if (authHelper.IsPasswordWeak(registerDto.Password) || !authHelper.IsEmailValid(registerDto.Email))
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest);
 				return operationResult;
 			}
 
-			if (registerDto.Type == UserType.Admin.ToString())
-			{
-				Admin admin = _mapper.Map<Admin>(registerDto);
-				_unitOfWork.AdminRepository.Add(admin);
-			}
-			else if (registerDto.Type == UserType.Customer.ToString())
-			{
-				Customer customer = _mapper.Map<Customer>(registerDto);
-				_unitOfWork.CustomerRepository.Add(customer);
-			}
-			else if(registerDto.Type == UserType.Seller.ToString())
-			{
-				Seller seller = _mapper.Map<Seller>(registerDto);
-				_unitOfWork.SellerRepository.Add(seller);
-			}
-			else
+			registerDto.Password = authHelper.HashPassword(registerDto.Password);
+
+			IUser newUser = CreateUserAndAddToRepository(registerDto);
+			if (newUser == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest);
 				return operationResult;
@@ -104,6 +91,62 @@ namespace Business.Services
 			operationResult = new ServiceOperationResult(true);
 
 			return operationResult;
+		}
+
+		private IUser CreateUserAndAddToRepository(RegisterUserDto registerDto)
+		{
+			if (registerDto.Type == UserType.Admin.ToString())
+			{
+				Admin admin = _mapper.Map<Admin>(registerDto);
+				AddProfileImageIfExists(registerDto, admin);
+				_unitOfWork.AdminRepository.Add(admin);
+
+				return admin;
+			}
+			else if (registerDto.Type == UserType.Customer.ToString())
+			{
+				Customer customer = _mapper.Map<Customer>(registerDto);
+				AddProfileImageIfExists(registerDto, customer);
+				_unitOfWork.CustomerRepository.Add(customer);
+
+				return customer;
+			}
+			else if (registerDto.Type == UserType.Seller.ToString())
+			{
+				Seller seller = _mapper.Map<Seller>(registerDto);
+				seller.ApprovalStatus = SellerApprovalStatus.Pending;
+				AddProfileImageIfExists(registerDto, seller);
+				_unitOfWork.SellerRepository.Add(seller);
+
+				return seller;
+			}
+
+			return null;
+		}
+
+		private void AddProfileImageIfExists(RegisterUserDto registerDto, IUser user)
+		{
+			if (registerDto.ProfileImage == null)
+			{
+				return;
+			}
+
+			string profileImageDir = Path.Combine(Directory.GetCurrentDirectory(), "../../ProfileImages");
+
+			if (!Directory.Exists(profileImageDir))
+			{
+				Directory.CreateDirectory(profileImageDir);
+			}
+
+			string fileExtension = Path.GetExtension(registerDto.ProfileImage.FileName);
+			string profileImageFileName = Path.Combine(profileImageDir, registerDto.Username) + fileExtension;
+
+			using (FileStream fs = new(profileImageFileName, FileMode.Create))
+			{
+				registerDto.ProfileImage.CopyTo(fs);
+			}
+
+			user.ProfileImage = user.Username;
 		}
 	}
 }

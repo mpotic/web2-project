@@ -8,7 +8,7 @@ namespace Data.Repository
 {
 	public class GenericRepository<T> : IGenericRepository<T> where T : class
 	{
-		OnlineShopDbContext _context;
+		readonly OnlineShopDbContext _context;
 
 		public GenericRepository(OnlineShopDbContext context)
 		{
@@ -49,7 +49,9 @@ namespace Data.Repository
 		public T GetById(int id)
 		{
 			var result = _context.Set<T>().Find(id);
-						return result;		}
+			
+			return result;
+		}
 
 		public void Remove(T entity)
 		{
@@ -59,6 +61,11 @@ namespace Data.Repository
 		public void RemoveRange(IEnumerable<T> entities)
 		{
 			_context.Set<T>().RemoveRange(entities);
+		}
+
+		public void Update(T entity)
+		{
+			_context.Set<T>().Update(entity);
 		}
 	}
 }

@@ -23,7 +23,7 @@ namespace Data.Configurations
 				.IsRequired();
 
 			builder.Property(x => x.ProfileImage)
-				.HasColumnType("varbinary(max)");
+				.HasColumnType("varchar(100)");
 
 			builder.Property(x => x.ApprovalStatus)
 				.HasConversion<string>();

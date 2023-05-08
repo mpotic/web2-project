@@ -12,7 +12,7 @@ namespace Data.Models
 
 		public int Quantity { get; set; }
 
-		public byte[] ProductImage { get; set; }
+		public string ProductImage { get; set; }
 
 		public long SellerId { get; set; }
 

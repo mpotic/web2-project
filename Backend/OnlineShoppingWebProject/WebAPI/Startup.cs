@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Business.Services;
 using Data.UnitOfWork;
+using System.IO;
 
 namespace WebAPI
 {
@@ -44,6 +45,8 @@ namespace WebAPI
 				(options => options.UseSqlServer(Configuration.GetConnectionString("OnlineShopDbConnectionString")));
 
 			AddRepositories(services);
+
+			var currentDir = Directory.GetCurrentDirectory();
 
 			services.AddScoped<IUserTokenIssuer, UserTokenIssuer>();
 

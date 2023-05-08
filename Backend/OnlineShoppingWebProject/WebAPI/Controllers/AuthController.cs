@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
 		}
 
 		[HttpPost("login")]
-		public IActionResult LoginUser([FromBody] LoginUserDTO loginDto)
+		public IActionResult LoginUser([FromBody] LoginUserDto loginDto)
 		{
 			try
 			{
@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
 		}
 
 		[HttpPost("regiser")]
-		public IActionResult RegisterUser(RegisterUserDTO registerDto)
+		public IActionResult RegisterUser([FromForm]RegisterUserDto registerDto)
 		{
 			try
 			{

@@ -23,7 +23,8 @@ namespace Data.Configurations
 			builder.Property(x => x.Email)
 				.IsRequired();
 
-			builder.Property(x => x.ProfileImage).HasColumnType("varbinary(max)");
+			builder.Property(x => x.ProfileImage)
+				.HasColumnType("varchar(100)");
 		}
 	}
 }

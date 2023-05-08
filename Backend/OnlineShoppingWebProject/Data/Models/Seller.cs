@@ -22,6 +22,6 @@ namespace Data.Models
 		
 		public string Address { get; set; }
 		
-		public byte[] ProfileImage { get; set; }
+		public string ProfileImage { get; set; }
 	}
 }

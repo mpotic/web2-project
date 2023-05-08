@@ -49,5 +49,44 @@ namespace Business.Util
 
 			return null;
 		}
+
+		public bool ValidateChangeableUserData(IUser user)
+		{
+			IAuthHelper authHelper = new AuthHelper();
+
+			if (user.Id <= 0)
+				return false;
+
+			if (string.IsNullOrWhiteSpace(user.Firstname))
+				return false;
+
+			if (string.IsNullOrWhiteSpace(user.Lastname))
+				return false;
+
+			if (string.IsNullOrWhiteSpace(user.Username))
+				return false;
+
+			if (string.IsNullOrWhiteSpace(user.Address))
+				return false;
+
+			if (string.IsNullOrWhiteSpace(user.Email) || !authHelper.IsEmailValid(user.Email))
+				return false;
+
+			return true;
+		}
+
+		public void UpdateChangeableUserData(User oldUser, User newUser)
+		{
+			oldUser.Address = newUser.Address;
+			oldUser.Firstname = newUser.Firstname;
+			oldUser.Lastname = newUser.Lastname;
+			oldUser.Username = newUser.Username;
+			oldUser.Email = newUser.Email;
+		}
+
+		public bool ValidateUser(IUser user)
+		{
+			throw new System.NotImplementedException();
+		}
 	}
 }

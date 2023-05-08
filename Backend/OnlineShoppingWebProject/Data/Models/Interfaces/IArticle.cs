@@ -12,7 +12,7 @@ namespace Data.Models
 
 		int Quantity { get; set; }
 
-		byte[] ProductImage { get; set; }
+		string ProductImage { get; set; }
 
 		/// <summary>
 		/// Foreign key.

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
@@ -12,6 +13,8 @@ namespace Business.TokenHelper
 	public class UserTokenIssuer : IUserTokenIssuer
 	{
 		string _key;
+
+		readonly int sslPort = 44301;
 
 		public UserTokenIssuer(IConfiguration configuration)
 		{
@@ -24,18 +27,19 @@ namespace Business.TokenHelper
 			var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
 
 			var tokenOptions = new JwtSecurityToken(
-				issuer: "http://localhost:44301", 
+				issuer: $"http://localhost:{sslPort}", 
 				claims: claims, 
 				expires: DateTime.Now.AddMinutes(360),
 				signingCredentials: signinCredentials
 			);
 
-			string token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+			JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+			string token = handler.WriteToken(tokenOptions);
 
 			return token;
 		}
 
-		public string IssueAdminJwt(IAdmin admin)
+		private string IssueAdminJwt(IAdmin admin)
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
@@ -49,7 +53,7 @@ namespace Business.TokenHelper
 			return token;
 		}
 
-		public string IssueCostumerJwt(ICustomer customer)
+		private string IssueCostumerJwt(ICustomer customer)
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
@@ -62,7 +66,7 @@ namespace Business.TokenHelper
 			return token;
 		}
 
-		public string IssueSellerJwt(ISeller seller)
+		private string IssueSellerJwt(ISeller seller)
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
@@ -91,6 +95,15 @@ namespace Business.TokenHelper
 			}
 
 			return null;
+		}
+
+		public string GetUsernameFromToken(string tokenString)
+		{
+			JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+			JwtSecurityToken token = handler.ReadJwtToken(tokenString);
+			string username = token.Claims.Where(x => x.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
+
+			return username;
 		}
 	}
 }

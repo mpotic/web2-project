@@ -1,6 +1,8 @@
-﻿namespace Business.Dto
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Business.Dto
 {
-	public class RegisterUserDTO : IDto
+	public class RegisterUserDto : IDto
 	{
 		public string Firstname { get; set; }
 
@@ -15,5 +17,7 @@
 		public string Address { get; set; }
 
 		public string Type { get; set; }
+
+		public IFormFile ProfileImage { get; set; }
 	}
 }

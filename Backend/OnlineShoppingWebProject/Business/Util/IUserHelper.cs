@@ -7,5 +7,9 @@ namespace Business.Util
 		IUser FindUserByUsername(string username);
 
 		IUser FindUserByEmail(string email);
+
+		bool ValidateUser(IUser user);
+
+		bool ValidateChangeableUserData(IUser user);
 	}
 }

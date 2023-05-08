@@ -4,7 +4,7 @@ using Data.UnitOfWork;
 
 namespace Business.Services
 {
-	public class AdminServices : IAdminServices
+	public class AdminService : IAdminServices
 	{
 		private IUnitOfWork _unitOfWork;
 
@@ -12,7 +12,7 @@ namespace Business.Services
 
 		private IUserHelper userHelper;
 
-		public AdminServices(IUnitOfWork unitOfWork, IMapper mapper)
+		public AdminService(IUnitOfWork unitOfWork, IMapper mapper)
 		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;

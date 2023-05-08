@@ -12,9 +12,9 @@ namespace Data.Configurations
 
 			builder.Property(x => x.Id)
 				.ValueGeneratedOnAdd();
-
+			
 			builder.Property(x => x.ProductImage)
-				.HasColumnType("varbinary(max)");
+				.HasColumnType("varchar(100)");
 
 			builder.HasMany(x => x.Items)
 				.WithOne(x => x.Article)

@@ -5,8 +5,8 @@ namespace Business.Services
 {
 	public interface IUserAuthService
 	{
-		IServiceOperationResult LoginUser(LoginUserDTO loginDto);
+		IServiceOperationResult LoginUser(LoginUserDto loginDto);
 
-		IServiceOperationResult RegisterUser(RegisterUserDTO registerDto);
+		IServiceOperationResult RegisterUser(RegisterUserDto registerDto);
 	}
 }

@@ -27,13 +27,21 @@ namespace Business.Mapping
 
 		public void MapUser()
 		{
-			CreateMap<User, UserDto>().ReverseMap();
+			CreateMap<User, BasicUserInfoDto>().ReverseMap();
 
-			CreateMap<Admin, UserDto>().ReverseMap();
+			CreateMap<Admin, BasicUserInfoDto>().ReverseMap();
 
-			CreateMap<Customer, UserDto>().ReverseMap();
+			CreateMap<Customer, BasicUserInfoDto>().ReverseMap();
 
-			CreateMap<Seller, UserDto>().ReverseMap();
+			CreateMap<Seller, BasicUserInfoDto>().ReverseMap();
+
+			CreateMap<User, UserInfoDto>().ReverseMap();
+
+			CreateMap<Admin, UserInfoDto>().ReverseMap();
+
+			CreateMap<Customer, UserInfoDto>().ReverseMap();
+
+			CreateMap<Seller, UserInfoDto>().ReverseMap();
 		}
 	}
 }

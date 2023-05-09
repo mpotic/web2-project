@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Business.Dto
 {
@@ -19,5 +20,7 @@ namespace Business.Dto
 		public string Type { get; set; }
 
 		public IFormFile ProfileImage { get; set; }
+
+		public DateTime Birthdate { get; set; }
 	}
 }

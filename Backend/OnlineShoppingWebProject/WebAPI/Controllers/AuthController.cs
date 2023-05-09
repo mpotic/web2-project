@@ -1,6 +1,7 @@
 ﻿using Business.Dto;
 using Business.Result;
 using Business.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
@@ -27,23 +28,14 @@ namespace WebAPI.Controllers
 
 				if (!operationResult.IsSuccessful)
 				{
-					if (operationResult.ErrorCode == ServiceOperationErrorCode.Unauthorized)
-					{
-						return StatusCode((int)HttpStatusCode.Unauthorized);
-					}
-					else if (operationResult.ErrorCode == ServiceOperationErrorCode.NotFound)
-					{
-						return StatusCode((int)HttpStatusCode.NotFound);
-					}
-					
-					return StatusCode((int)HttpStatusCode.BadRequest);
+					return StatusCode((int)operationResult.ErrorCode);
 				}
 
 				return Ok(operationResult.Dto);
 			}
 			catch (Exception e)
 			{
-				return StatusCode((int)HttpStatusCode.InternalServerError);
+				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 		}
 
@@ -66,11 +58,11 @@ namespace WebAPI.Controllers
 					}
 				}
 
-				return StatusCode((int)HttpStatusCode.Created);
+				return Ok();
 			}
 			catch (Exception e)
 			{
-				return StatusCode((int)HttpStatusCode.InternalServerError);
+				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 		}
 	}

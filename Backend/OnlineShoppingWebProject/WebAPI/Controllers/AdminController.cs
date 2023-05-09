@@ -7,11 +7,6 @@ namespace WebAPI.Controllers
 	[ApiController]
 	public class AdminController : ControllerBase
 	{
-		[HttpGet("all-sellers")]
-		[Authorize(Roles = "Admin")]
-		public IActionResult GetAllSellers()
-		{
-			return Ok();
-		}
+		
 	}
 }

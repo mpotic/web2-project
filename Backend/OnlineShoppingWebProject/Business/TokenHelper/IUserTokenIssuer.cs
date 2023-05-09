@@ -7,5 +7,7 @@ namespace Business.TokenHelper
 		string IssueUserJwt(IUser user);
 
 		string GetUsernameFromToken(string tokenString);
+
+		string GetClaimValueFromToken(string tokenString, string claimType);
 	}
 }

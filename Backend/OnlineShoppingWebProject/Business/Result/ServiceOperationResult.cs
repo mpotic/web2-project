@@ -21,6 +21,7 @@ namespace Business.Result
 
 		public ServiceOperationResult(bool isSuccessful, ServiceOperationErrorCode errorCode) : this(isSuccessful)
 		{
+			IsSuccessful = isSuccessful;
 			ErrorCode = errorCode;
 		}
 

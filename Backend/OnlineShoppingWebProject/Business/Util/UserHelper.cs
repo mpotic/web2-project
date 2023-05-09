@@ -1,10 +1,16 @@
 ﻿using Data.Models;
 using Data.UnitOfWork;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace Business.Util
 {
 	public class UserHelper : IUserHelper
 	{
+		private readonly string profileImageRelativePath = "../ProfileImages";
+
+		public string ProfileImagesRelativePath => profileImageRelativePath;
+
 		private IUnitOfWork unitOfWork;
 
 		public UserHelper(IUnitOfWork unitOfWork)
@@ -31,7 +37,26 @@ namespace Business.Util
 			return null;
 		}
 
-		public IUser FindUserByEmail(string email) 
+		public IUser FindById(long id)
+		{
+			if (unitOfWork.AdminRepository.FindFirst(x => x.Id == id) is Admin admin)
+			{
+				return admin;
+			}
+			else if (unitOfWork.CustomerRepository.FindFirst(x => x.Id == id) is Customer customer)
+			{
+				return customer;
+
+			}
+			else if (unitOfWork.SellerRepository.FindFirst(x => x.Id == id) is Seller seller)
+			{
+				return seller;
+			}
+
+			return null;
+		}
+
+		public IUser FindUserByEmail(string email)
 		{
 			if (unitOfWork.AdminRepository.FindFirst(x => x.Email == email) is Admin admin)
 			{
@@ -50,43 +75,59 @@ namespace Business.Util
 			return null;
 		}
 
-		public bool ValidateChangeableUserData(IUser user)
+		public void UpdateBasicUserData(IUser currentUser, IUser newUser)
 		{
-			IAuthHelper authHelper = new AuthHelper();
+			if (!string.IsNullOrWhiteSpace(newUser.Address))
+			{
+				currentUser.Address = newUser.Address;
+			}
+			
+			if (!string.IsNullOrWhiteSpace(newUser.Firstname))
+			{
+				currentUser.Firstname = newUser.Firstname;
+			}
+			
+			if (!string.IsNullOrWhiteSpace(newUser.Lastname))
+			{
+				currentUser.Lastname = newUser.Lastname;
+			}
 
-			if (user.Id <= 0)
-				return false;
+			if (!string.IsNullOrWhiteSpace(newUser.Username))
+			{
+				currentUser.Username = newUser.Username;
+			}
 
-			if (string.IsNullOrWhiteSpace(user.Firstname))
-				return false;
+			if(newUser.Birthdate != System.DateTime.MinValue)
+			{
+				currentUser.Birthdate = newUser.Birthdate;
+			}
+		}
 
-			if (string.IsNullOrWhiteSpace(user.Lastname))
+		public bool UploadProfileImage(IUser user, IFormFile profileImage)
+		{
+			if (profileImage == null)
+			{
 				return false;
+			}
 
-			if (string.IsNullOrWhiteSpace(user.Username))
-				return false;
+			string profileImageDir = Path.Combine(Directory.GetCurrentDirectory(), ProfileImagesRelativePath);
 
-			if (string.IsNullOrWhiteSpace(user.Address))
-				return false;
+			if (!Directory.Exists(profileImageDir))
+			{
+				Directory.CreateDirectory(profileImageDir);
+			}
 
-			if (string.IsNullOrWhiteSpace(user.Email) || !authHelper.IsEmailValid(user.Email))
-				return false;
+			string fileExtension = Path.GetExtension(profileImage.FileName);
+			string profileImageFileName = Path.Combine(profileImageDir, user.Username) + fileExtension;
+
+			using (FileStream fs = new FileStream(profileImageFileName, FileMode.Create))
+			{
+				profileImage.CopyTo(fs);
+			}
+
+			user.ProfileImage = user.Username + fileExtension;
 
 			return true;
-		}
-
-		public void UpdateChangeableUserData(User oldUser, User newUser)
-		{
-			oldUser.Address = newUser.Address;
-			oldUser.Firstname = newUser.Firstname;
-			oldUser.Lastname = newUser.Lastname;
-			oldUser.Username = newUser.Username;
-			oldUser.Email = newUser.Email;
-		}
-
-		public bool ValidateUser(IUser user)
-		{
-			throw new System.NotImplementedException();
 		}
 	}
 }

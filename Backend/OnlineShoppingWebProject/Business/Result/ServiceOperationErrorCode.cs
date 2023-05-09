@@ -2,10 +2,10 @@
 {
 	public enum ServiceOperationErrorCode
 	{
-		BadRequest,
-		Unauthorized,
-		NotFound,
-		InternalServerError,
-		Conflict
+		BadRequest = 400,
+		Unauthorized = 401,
+		NotFound = 404,
+		InternalServerError = 500,
+		Conflict = 409
 	}
 }

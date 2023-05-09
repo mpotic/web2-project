@@ -5,7 +5,6 @@ using Business.TokenHelper;
 using Business.Util;
 using Data.Models;
 using Data.UnitOfWork;
-using System.IO;
 
 namespace Business.Services
 {
@@ -38,12 +37,14 @@ namespace Business.Services
 			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
+
 				return operationResult;
 			}
 
 			if (!authHelper.IsPasswordValid(loginDto.Password, user.Password))
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Unauthorized);
+
 				return operationResult;
 			}
 
@@ -52,6 +53,7 @@ namespace Business.Services
 			if (token == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.InternalServerError);
+
 				return operationResult;
 			}
 
@@ -68,12 +70,14 @@ namespace Business.Services
 				userHelper.FindUserByEmail(registerDto.Email) != null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Conflict, "User already exists!");
+
 				return operationResult;
 			}
 
 			if (authHelper.IsPasswordWeak(registerDto.Password) || !authHelper.IsEmailValid(registerDto.Email))
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest);
+
 				return operationResult;
 			}
 
@@ -83,6 +87,7 @@ namespace Business.Services
 			if (newUser == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest);
+
 				return operationResult;
 			}
 
@@ -98,7 +103,7 @@ namespace Business.Services
 			if (registerDto.Type == UserType.Admin.ToString())
 			{
 				Admin admin = _mapper.Map<Admin>(registerDto);
-				AddProfileImageIfExists(registerDto, admin);
+				userHelper.UploadProfileImage(admin, registerDto.ProfileImage);
 				_unitOfWork.AdminRepository.Add(admin);
 
 				return admin;
@@ -106,7 +111,7 @@ namespace Business.Services
 			else if (registerDto.Type == UserType.Customer.ToString())
 			{
 				Customer customer = _mapper.Map<Customer>(registerDto);
-				AddProfileImageIfExists(registerDto, customer);
+				userHelper.UploadProfileImage(customer, registerDto.ProfileImage);
 				_unitOfWork.CustomerRepository.Add(customer);
 
 				return customer;
@@ -115,38 +120,13 @@ namespace Business.Services
 			{
 				Seller seller = _mapper.Map<Seller>(registerDto);
 				seller.ApprovalStatus = SellerApprovalStatus.Pending;
-				AddProfileImageIfExists(registerDto, seller);
+				userHelper.UploadProfileImage(seller, registerDto.ProfileImage);
 				_unitOfWork.SellerRepository.Add(seller);
 
 				return seller;
 			}
 
 			return null;
-		}
-
-		private void AddProfileImageIfExists(RegisterUserDto registerDto, IUser user)
-		{
-			if (registerDto.ProfileImage == null)
-			{
-				return;
-			}
-
-			string profileImageDir = Path.Combine(Directory.GetCurrentDirectory(), "../../ProfileImages");
-
-			if (!Directory.Exists(profileImageDir))
-			{
-				Directory.CreateDirectory(profileImageDir);
-			}
-
-			string fileExtension = Path.GetExtension(registerDto.ProfileImage.FileName);
-			string profileImageFileName = Path.Combine(profileImageDir, registerDto.Username) + fileExtension;
-
-			using (FileStream fs = new(profileImageFileName, FileMode.Create))
-			{
-				registerDto.ProfileImage.CopyTo(fs);
-			}
-
-			user.ProfileImage = user.Username;
 		}
 	}
 }

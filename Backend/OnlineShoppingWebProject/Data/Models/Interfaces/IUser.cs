@@ -1,4 +1,6 @@
-﻿namespace Data.Models
+﻿using System;
+
+namespace Data.Models
 {
 	public interface IUser
 	{
@@ -15,6 +17,8 @@
 		string Password { get; set; }
 
 		string Address { get; set; }
+
+		DateTime Birthdate { get; set; }
 
 		string ProfileImage { get; set; }
 	}

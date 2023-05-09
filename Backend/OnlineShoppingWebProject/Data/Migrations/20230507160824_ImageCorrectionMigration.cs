@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Data.Migrations
 {
-    public partial class ImageCorrectionMigration : Migration
+	public partial class ImageCorrectionMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

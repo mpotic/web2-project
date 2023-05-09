@@ -15,7 +15,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Business.Services;
 using Data.UnitOfWork;
-using System.IO;
+using Business.Services.Interfaces;
 
 namespace WebAPI
 {
@@ -46,13 +46,9 @@ namespace WebAPI
 
 			AddRepositories(services);
 
-			var currentDir = Directory.GetCurrentDirectory();
+			ConfigureBusinessServices(services);
 
 			services.AddScoped<IUserTokenIssuer, UserTokenIssuer>();
-
-			services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-			services.AddScoped<IUserAuthService, UserAuthService>();
 
 			ConfigureMapping(services);
 		}
@@ -118,6 +114,8 @@ namespace WebAPI
 
 		public void AddRepositories(IServiceCollection services)
 		{
+			services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 			services.AddScoped<IAdminRepository, AdminRepository>();
 
 			services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -176,6 +174,13 @@ namespace WebAPI
 				});
 			});
 
+		}
+
+		public void ConfigureBusinessServices(IServiceCollection services)
+		{
+			services.AddScoped<IUserAuthService, UserAuthService>();
+
+			services.AddScoped<IUserService, UserService>();
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
 			_sellerService = sellerService;
 		}
 
-		[HttpGet("all-articles")]
+		[HttpGet("articles")]
 		[Authorize(Roles = "Seller")]
 		public IActionResult AllArticles()
 		{
@@ -45,33 +45,33 @@ namespace WebAPI.Controllers
 			}
 		}
 		
-		[HttpGet("new-orders")]
-		[Authorize(Roles = "Seller")]
-		public IActionResult NewOrders()
-		{
-			try
-			{
-				return Ok();
-			}
-			catch (Exception)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError);
-			}
-		}
+		//[HttpGet("new-orders")]
+		//[Authorize(Roles = "Seller")]
+		//public IActionResult NewOrders()
+		//{
+		//	try
+		//	{
+		//		return Ok();
+		//	}
+		//	catch (Exception)
+		//	{
+		//		return StatusCode(StatusCodes.Status500InternalServerError);
+		//	}
+		//}
 
-		[HttpGet("all-orders")]
-		[Authorize(Roles = "Seller")]
-		public IActionResult AllOrders()
-		{
-			try
-			{
-				return Ok();
-			}
-			catch (Exception)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError);
-			}
-		}
+		//[HttpGet("all-orders")]
+		//[Authorize(Roles = "Seller")]
+		//public IActionResult AllOrders()
+		//{
+		//	try
+		//	{
+		//		return Ok();
+		//	}
+		//	catch (Exception)
+		//	{
+		//		return StatusCode(StatusCodes.Status500InternalServerError);
+		//	}
+		//}
 
 		[HttpPost("article")]
 		[Authorize(Roles = "Seller")]
@@ -115,7 +115,31 @@ namespace WebAPI.Controllers
 
 				return Ok();
 			}
-			catch (Exception e)
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpPut("product-image")]
+		[Authorize(Roles = "Seller")]
+		public IActionResult UpdateArticleProductImage([FromForm] ArticleProductImageUpdateDto article)
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult result = _sellerService.UpdateArticleProductImage(article, jwtDto);
+
+				if (!result.IsSuccessful)
+				{
+					return StatusCode((int)result.ErrorCode, result.ErrorMessage);
+				}
+
+				return Ok();
+			}
+			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
@@ -123,10 +147,20 @@ namespace WebAPI.Controllers
 
 		[HttpDelete("article")]
 		[Authorize(Roles = "Seller")]
-		public IActionResult DeleteArticle(long id)
+		public IActionResult DeleteArticle([FromBody] string name)
 		{
 			try
 			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult result = _sellerService.DeleteArticle(name, jwtDto);
+
+				if (!result.IsSuccessful)
+				{
+					return StatusCode((int)result.ErrorCode, result.ErrorMessage);
+				}
+
 				return Ok();
 			}
 			catch (Exception)

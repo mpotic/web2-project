@@ -1,4 +1,5 @@
 ﻿using Business.Dto.User;
+using Business.TokenHelper;
 using Data.Models;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Http;
@@ -30,25 +31,6 @@ namespace Business.Util
 				return customer;
 			}
 			else if (unitOfWork.SellerRepository.FindFirst(x => x.Username == username) is Seller seller)
-			{
-				return seller;
-			}
-
-			return null;
-		}
-
-		public IUser FindById(long id)
-		{
-			if (unitOfWork.AdminRepository.FindFirst(x => x.Id == id) is Admin admin)
-			{
-				return admin;
-			}
-			else if (unitOfWork.CustomerRepository.FindFirst(x => x.Id == id) is Customer customer)
-			{
-				return customer;
-
-			}
-			else if (unitOfWork.SellerRepository.FindFirst(x => x.Id == id) is Seller seller)
 			{
 				return seller;
 			}
@@ -92,6 +74,15 @@ namespace Business.Util
 			}
 
 			return null;
+		}
+
+		public IUser FindUserByJwt(string token, IUserTokenIssuer tokenIssuer)
+		{
+			long id = int.Parse(tokenIssuer.GetClaimValueFromToken(token, "id"));
+			string role = (tokenIssuer.GetClaimValueFromToken(token, "role"));
+			IUser user = FindByIdAndRole(id, role);
+
+			return user;
 		}
 
 		public void UpdateBasicUserData(IUser currentUser, IUser newUser)
@@ -161,6 +152,29 @@ namespace Business.Util
 			byte[] image = File.ReadAllBytes(path);
 
 			return image;
+		}
+
+		public void UpdateProfileImagePath(IUser currentUser, string newUsername)
+		{
+			if (currentUser.Username == newUsername)
+			{
+				return;
+			}
+
+			string oldProfileImagePath = Path.Combine(Directory.GetCurrentDirectory(), ProfileImagesRelativePath, currentUser.ProfileImage);
+
+			if (!File.Exists(oldProfileImagePath))
+			{
+				return;
+			}
+
+			string fileExtension = Path.GetExtension(currentUser.ProfileImage);
+			string profileImageFileName = newUsername + fileExtension;
+
+			string newProfileImagePath = Path.Combine(Directory.GetCurrentDirectory(), ProfileImagesRelativePath, profileImageFileName);
+			File.Move(oldProfileImagePath, newProfileImagePath);
+
+			currentUser.ProfileImage = profileImageFileName;
 		}
 	}
 }

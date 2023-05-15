@@ -4,11 +4,10 @@ using Business.Dto.Auth;
 using Business.Result;
 using Business.TokenHelper;
 using Business.Util;
+using Business.Util.Interfaces;
 using Data.Models;
 using Data.UnitOfWork;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Business.Services
 {
@@ -24,7 +23,7 @@ namespace Business.Services
 
 		IFiledValidationHelper validationHelper = new FieldValidationHelper();
 
-		const string ArticleImageRelativePath = "../ArticleImages";
+		ISellerHelper sellerHelper = new SellerHelper();
 
 		public SellerService(IUnitOfWork unitOfWork, IUserTokenIssuer tokenIssuer, IMapper mapper)
 		{
@@ -52,9 +51,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
-			IUser user = userHelper.FindByIdAndRole(id, role);
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
 			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
@@ -79,7 +76,7 @@ namespace Business.Services
 			Article article = _mapper.Map<Article>(articleDto);
 			article.SellerId = user.Id;
 
-			AddImageIfExists(article, articleDto.ProductImage, user.Id);
+			sellerHelper.AddProductImageIfExists(article, articleDto.ProductImage, user.Id);
 
 			_unitOfWork.ArticleRepository.Add(article);
 			_unitOfWork.Commit();
@@ -93,9 +90,7 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
-			IUser user = userHelper.FindByIdAndRole(id, role);
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
 			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
@@ -113,7 +108,8 @@ namespace Business.Services
 			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == user.Id && x.Name == articleDto.CurrentName);
 			if (article == null)
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, $"Article named \"{articleDto.CurrentName}\" doesn't exist!");
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, 
+					$"Article named \"{articleDto.CurrentName}\" doesn't exist among sellers aricles!");
 
 				return operationResult;
 			}
@@ -125,7 +121,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			UpdateArticleProps(articleDto, article);
+			sellerHelper.UpdateArticleProps(articleDto, article);
 
 			_unitOfWork.ArticleRepository.Update((Article)article);
 			_unitOfWork.Commit();
@@ -150,107 +146,72 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			List<ArticleInfoDto> articleDtoList = AddProductImageIfExistsToArticles(articles);
+			List<ArticleInfoDto> articleDtoList = sellerHelper.IncludeProductImageIfExistsToArticles(articles);
 			ArticleListDto response = new ArticleListDto() { Articles = articleDtoList };
 			operationResult = new ServiceOperationResult(true, response);
 
 			return operationResult;
 		}
 
-		private void AddImageIfExists(IArticle article, IFormFile receivedImage, long sellerId)
+		public IServiceOperationResult UpdateArticleProductImage(ArticleProductImageUpdateDto articleDto, JwtDto jwtDto)
 		{
-			if (receivedImage == null)
+			IServiceOperationResult operationResult;
+
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (user == null)
 			{
-				return;
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
+
+				return operationResult;
 			}
 
-			string profileImageDir = Path.Combine(Directory.GetCurrentDirectory(), ArticleImageRelativePath);
-
-			if (!Directory.Exists(profileImageDir))
+			IArticle article = (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == user.Id && x.Name == articleDto.Name));
+			if (article == null)
 			{
-				Directory.CreateDirectory(profileImageDir);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound,
+					$"Article named \"{articleDto.Name}\" doesn't exist among sellers aricles!");
+
+				return operationResult;
 			}
 
-			string fileExtension = Path.GetExtension(receivedImage.FileName);
-			string imageName = sellerId + "_" + article.Name;
-			string profileImageFileName = Path.Combine(profileImageDir, imageName) + fileExtension;
+			sellerHelper.AddProductImageIfExists(article, articleDto.ProductImage, user.Id);
 
-			using (FileStream fs = new FileStream(profileImageFileName, FileMode.Create))
-			{
-				receivedImage.CopyTo(fs);
-			}
+			_unitOfWork.ArticleRepository.Update((Article)article);
+			_unitOfWork.Commit();
 
-			article.ProductImage = imageName + fileExtension;
+			operationResult = new ServiceOperationResult(true);
+
+			return operationResult;
 		}
 
-		private void UpdateArticleProps(ArticleUpdateDto articleDto, IArticle article)
+		public IServiceOperationResult DeleteArticle(string articleName, JwtDto jwtDto)
 		{
-			if (articleDto == null || article == null)
+			IServiceOperationResult operationResult;
+
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (user == null)
 			{
-				return;
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
+
+				return operationResult;
 			}
 
-			if (!string.IsNullOrWhiteSpace(articleDto.NewName))
+			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.Name == articleName && x.Id == user.Id);
+			if (article == null)
 			{
-				article.Name = articleDto.NewName;
-				UpdateProductImagePath(article);
-			}
-			
-			if (!string.IsNullOrWhiteSpace(articleDto.Description))
-			{
-				article.Description = articleDto.Description;
-			}
-			
-			if (articleDto.Quantity >= 0)
-			{
-				article.Quantity = articleDto.Quantity;
-			}
-		}
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "The article doesn't exist!");
 
-		private void UpdateProductImagePath(IArticle article)
-		{
-			string oldProductImagePath = Path.Combine(Directory.GetCurrentDirectory(), ArticleImageRelativePath, article.ProductImage);
-
-			if (!File.Exists(oldProductImagePath))
-			{
-				return;
+				return operationResult;
 			}
 
-			string fileExtension = Path.GetExtension(article.ProductImage);
-			string newProductImageName = article.SellerId + "_" + article.Name + fileExtension;
+			_unitOfWork.ArticleRepository.Remove((Article)article);
+			_unitOfWork.Commit();
 
-			string newProductImagePath = Path.Combine(Directory.GetCurrentDirectory(), ArticleImageRelativePath, newProductImageName);
-			File.Move(oldProductImagePath, newProductImagePath);
+			sellerHelper.DeleteArticleProductImageIfExists(article);
 
-			article.ProductImage = newProductImageName;
-		}
+			operationResult = new ServiceOperationResult(true);
 
-		private List<ArticleInfoDto> AddProductImageIfExistsToArticles(List<Article> articles)
-		{
-			List<ArticleInfoDto> articleDtoList = new List<ArticleInfoDto>();
-
-			foreach(Article article in articles)
-			{
-				byte[] productImage = GetArticleProductImage(article);
-				articleDtoList.Add(new ArticleInfoDto(article.Name, article.Description, article.Quantity, productImage));
-			}
-
-			return articleDtoList;
-		}
-
-		private byte[] GetArticleProductImage(IArticle article)
-		{
-			string productImageName = article.ProductImage;
-			string productImagePath = Path.Combine(Directory.GetCurrentDirectory(), ArticleImageRelativePath, productImageName);
-
-			if (!File.Exists(productImagePath))
-			{
-				return null;
-			}
-
-			byte[] image = File.ReadAllBytes(productImagePath);
-
-			return image;
+			return operationResult;
 		}
 	}
 }

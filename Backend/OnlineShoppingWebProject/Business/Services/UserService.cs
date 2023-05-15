@@ -36,9 +36,7 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
-			IUser user = userHelper.FindByIdAndRole(id, role);
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
 			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
@@ -56,9 +54,7 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
-			IUser user = userHelper.FindByIdAndRole(id, role);
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
 			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
@@ -85,9 +81,7 @@ namespace Business.Services
 
 			IUser newUser = _mapper.Map<User>(newUserDto);
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
-			IUser currentUser = userHelper.FindByIdAndRole(id, role);
+			IUser currentUser = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
 			if (currentUser == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
@@ -109,7 +103,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			UpdateProfileImagePath(currentUser, newUser.Username);
+			userHelper.UpdateProfileImagePath(currentUser, newUser.Username);
 			userHelper.UpdateBasicUserData(currentUser, newUser);
 
 			if(!userRepositoryManager.UpdateUser(currentUser))
@@ -130,10 +124,8 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
-			IUser user = userHelper.FindByIdAndRole(id, role);
-			if(user == null)
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
 
@@ -176,9 +168,7 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
-			IUser user = userHelper.FindByIdAndRole(id, role);
+			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
 			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
@@ -205,32 +195,6 @@ namespace Business.Services
 			operationResult = new ServiceOperationResult(true);
 
 			return operationResult;
-		}
-
-		/// <summary>
-		/// In case that the username has changed, the profile image file name has to be updated which is what this method does.
-		/// </summary>
-		private void UpdateProfileImagePath(IUser currentUser, string newUsername)
-		{
-			if (currentUser.Username == newUsername)
-			{
-				return;
-			}
-
-			string oldProfileImagePath = Path.Combine(Directory.GetCurrentDirectory(), userHelper.ProfileImagesRelativePath, currentUser.ProfileImage);
-
-			if (!File.Exists(oldProfileImagePath))
-			{
-				return;
-			}
-
-			string fileExtension = Path.GetExtension(currentUser.ProfileImage);
-			string profileImageFileName = newUsername + fileExtension;
-
-			string newProfileImagePath = Path.Combine(Directory.GetCurrentDirectory(), userHelper.ProfileImagesRelativePath, profileImageFileName);
-			File.Move(oldProfileImagePath, newProfileImagePath);
-
-			currentUser.ProfileImage = profileImageFileName;
 		}
 	}
 }

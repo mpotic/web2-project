@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Business.Dto.ArticleDto
+﻿namespace Business.Dto.ArticleDto
 {
 	public class ArticleInfoDto : IDto
 	{

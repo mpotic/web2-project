@@ -33,5 +33,49 @@ namespace Data.Repository.Util
 
 			return true;
 		}
+
+		public bool AddUser(IUser user)
+		{
+			if (user is Admin)
+			{
+				unitOfWork.AdminRepository.Add((Admin)user);
+			}
+			else if (user is Customer)
+			{
+				unitOfWork.CustomerRepository.Add((Customer)user);
+			}
+			else if (user is Seller)
+			{
+				unitOfWork.SellerRepository.Add((Seller)user);
+			}
+			else
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool RemoveUser(IUser user)
+		{
+			if (user is Admin)
+			{
+				unitOfWork.AdminRepository.Remove((Admin)user);
+			}
+			else if (user is Customer)
+			{
+				unitOfWork.CustomerRepository.Remove((Customer)user);
+			}
+			else if (user is Seller)
+			{
+				unitOfWork.SellerRepository.Remove((Seller)user);
+			}
+			else
+			{
+				return false;
+			}
+
+			return true;
+		}
 	}
 }

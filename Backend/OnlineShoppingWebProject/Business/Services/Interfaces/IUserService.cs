@@ -1,12 +1,14 @@
-﻿using Business.Dto;
+﻿using Business.Dto.Auth;
 using Business.Dto.User;
 using Business.Result;
 
-namespace Business.Services.Interfaces
+namespace Business.Services
 {
 	public interface IUserService
 	{
 		IServiceOperationResult GetUser(JwtDto jwtDto);
+
+		IServiceOperationResult GetProfileImage(JwtDto jwtDto);
 
 		IServiceOperationResult UpdateUser(BasicUserInfoDto newUserDto, JwtDto jwtDto);
 

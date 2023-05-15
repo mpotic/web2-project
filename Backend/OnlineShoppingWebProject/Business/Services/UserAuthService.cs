@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Business.Dto;
+using Business.Dto.Auth;
+using Business.Dto.User;
 using Business.Result;
 using Business.TokenHelper;
 using Business.Util;
@@ -16,9 +17,11 @@ namespace Business.Services
 
 		private IMapper _mapper;
 
+		private IUserHelper userHelper;
+
 		private IAuthHelper authHelper = new AuthHelper();
 
-		private IUserHelper userHelper;
+		private IFiledValidationHelper validationHelper = new FieldValidationHelper();
 
 		public UserAuthService(IUserTokenIssuer userTokenIssuer, IUnitOfWork unitOfWork, IMapper mapper)
 		{
@@ -66,10 +69,17 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
+			if (validationHelper.AreStringPropsNullOrEmpty(registerDto))
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest, "Fields can not be left emtpy!");
+
+				return operationResult;
+			}
+
 			if (userHelper.FindUserByUsername(registerDto.Username) != null ||
 				userHelper.FindUserByEmail(registerDto.Email) != null)
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Conflict, "User already exists!");
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Conflict, "User with a given username or email already exists!");
 
 				return operationResult;
 			}

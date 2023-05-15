@@ -1,6 +1,6 @@
 ﻿namespace Business.Dto.User
 {
-	public class PasswordChangeDto
+	public class PasswordChangeDto : IDto
 	{
 		public string OldPassword { get; set; }
 

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using Business.Dto;
+using Business.Dto.Auth;
 using Business.Dto.User;
 using Business.Result;
-using Business.Services.Interfaces;
 using Business.TokenHelper;
 using Business.Util;
 using Data.Models;
@@ -38,11 +37,12 @@ namespace Business.Services
 			IServiceOperationResult operationResult;
 
 			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			IUser user = userHelper.FindById(id);
-			if(user == null)
+			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
+			IUser user = userHelper.FindByIdAndRole(id, role);
+			if (user == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
-				
+
 				return operationResult;
 			}
 
@@ -52,13 +52,48 @@ namespace Business.Services
 			return operationResult;
 		}
 
+		public IServiceOperationResult GetProfileImage(JwtDto jwtDto)
+		{
+			IServiceOperationResult operationResult;
+
+			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
+			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
+			IUser user = userHelper.FindByIdAndRole(id, role);
+			if (user == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
+
+				return operationResult;
+			}
+
+			byte[] image = userHelper.GetProfileImage(user.ProfileImage);
+			if (image == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Users profile image has not been found!");
+				return operationResult;
+			}
+
+			ProfileImageByteArrDto imageDto = new ProfileImageByteArrDto() { ProfileImage = image };
+			operationResult = new ServiceOperationResult(true, imageDto);
+
+			return operationResult;
+		}
+
 		public IServiceOperationResult UpdateUser(BasicUserInfoDto newUserDto, JwtDto jwtDto)
 		{
 			IServiceOperationResult operationResult;
 
 			IUser newUser = _mapper.Map<User>(newUserDto);
+
 			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			IUser currentUser = userHelper.FindById(id);
+			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
+			IUser currentUser = userHelper.FindByIdAndRole(id, role);
+			if (currentUser == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
+
+				return operationResult;
+			}
 
 			if (currentUser == null || newUser == null)
 			{
@@ -94,8 +129,16 @@ namespace Business.Services
 		public IServiceOperationResult ChangePassword(PasswordChangeDto passwordDto, JwtDto jwtDto)
 		{
 			IServiceOperationResult operationResult;
+
 			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			IUser user = userHelper.FindById(id);
+			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
+			IUser user = userHelper.FindByIdAndRole(id, role);
+			if(user == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
+
+				return operationResult;
+			}
 
 			IAuthHelper authHelper = new AuthHelper();
 			if(!authHelper.IsPasswordValid(passwordDto.OldPassword, user.Password))
@@ -132,8 +175,16 @@ namespace Business.Services
 		public IServiceOperationResult UploadProfileImage(ProfileImageDto profileDto, JwtDto jwtDto)
 		{
 			IServiceOperationResult operationResult;
+
 			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			IUser user = userHelper.FindById(id);
+			string role = _tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "role");
+			IUser user = userHelper.FindByIdAndRole(id, role);
+			if (user == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
+
+				return operationResult;
+			}
 
 			if (!userHelper.UploadProfileImage(user, profileDto.ProfileImage))
 			{
@@ -174,12 +225,12 @@ namespace Business.Services
 			}
 
 			string fileExtension = Path.GetExtension(currentUser.ProfileImage);
-			string profileImage = newUsername + fileExtension;
+			string profileImageFileName = newUsername + fileExtension;
 
-			string newProfileImagePath = Path.Combine(Directory.GetCurrentDirectory(), userHelper.ProfileImagesRelativePath, profileImage);
+			string newProfileImagePath = Path.Combine(Directory.GetCurrentDirectory(), userHelper.ProfileImagesRelativePath, profileImageFileName);
 			File.Move(oldProfileImagePath, newProfileImagePath);
 
-			currentUser.ProfileImage = profileImage;
+			currentUser.ProfileImage = profileImageFileName;
 		}
 	}
 }

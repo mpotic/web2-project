@@ -2,7 +2,7 @@
 
 namespace Business.Dto.User
 {
-	public class ProfileImageDto
+	public class ProfileImageDto : IDto
 	{
 		public IFormFile ProfileImage { get; set; }
 	}

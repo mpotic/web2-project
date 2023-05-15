@@ -13,8 +13,12 @@ namespace Business.Util
 
 		IUser FindUserByEmail(string email);
 
+		IUser FindByIdAndRole(long id, string role);
+
 		void UpdateBasicUserData(IUser currentUser, IUser newUser);
 		
 		bool UploadProfileImage(IUser user, IFormFile profileImage);
+
+		byte[] GetProfileImage(string profileImageName);
 	}
 }

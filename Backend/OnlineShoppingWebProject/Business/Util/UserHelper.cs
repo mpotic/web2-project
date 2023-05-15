@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using Business.Dto.User;
+using Data.Models;
 using Data.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using System.IO;
@@ -7,7 +8,7 @@ namespace Business.Util
 {
 	public class UserHelper : IUserHelper
 	{
-		private readonly string profileImageRelativePath = "../ProfileImages";
+		private const string profileImageRelativePath = "../ProfileImages";
 
 		public string ProfileImagesRelativePath => profileImageRelativePath;
 
@@ -27,7 +28,6 @@ namespace Business.Util
 			else if (unitOfWork.CustomerRepository.FindFirst(x => x.Username == username) is Customer customer)
 			{
 				return customer;
-
 			}
 			else if (unitOfWork.SellerRepository.FindFirst(x => x.Username == username) is Seller seller)
 			{
@@ -75,18 +75,37 @@ namespace Business.Util
 			return null;
 		}
 
+		public IUser FindByIdAndRole(long id, string role)
+		{
+			if (role == UserType.Admin.ToString() && unitOfWork.AdminRepository.FindFirst(x => x.Id == id) is Admin admin)
+			{
+				return admin;
+			}
+			else if (role == UserType.Customer.ToString() && unitOfWork.CustomerRepository.FindFirst(x => x.Id == id) is Customer customer)
+			{
+				return customer;
+
+			}
+			else if (role == UserType.Seller.ToString() && unitOfWork.SellerRepository.FindFirst(x => x.Id == id) is Seller seller)
+			{
+				return seller;
+			}
+
+			return null;
+		}
+
 		public void UpdateBasicUserData(IUser currentUser, IUser newUser)
 		{
 			if (!string.IsNullOrWhiteSpace(newUser.Address))
 			{
 				currentUser.Address = newUser.Address;
 			}
-			
+
 			if (!string.IsNullOrWhiteSpace(newUser.Firstname))
 			{
 				currentUser.Firstname = newUser.Firstname;
 			}
-			
+
 			if (!string.IsNullOrWhiteSpace(newUser.Lastname))
 			{
 				currentUser.Lastname = newUser.Lastname;
@@ -97,7 +116,7 @@ namespace Business.Util
 				currentUser.Username = newUser.Username;
 			}
 
-			if(newUser.Birthdate != System.DateTime.MinValue)
+			if (newUser.Birthdate != System.DateTime.MinValue)
 			{
 				currentUser.Birthdate = newUser.Birthdate;
 			}
@@ -128,6 +147,20 @@ namespace Business.Util
 			user.ProfileImage = user.Username + fileExtension;
 
 			return true;
+		}
+
+		public byte[] GetProfileImage(string profileImageName)
+		{
+			string path = Path.Combine(ProfileImagesRelativePath, profileImageName);
+
+			if (!File.Exists(path))
+			{
+				return null;
+			}
+
+			byte[] image = File.ReadAllBytes(path);
+
+			return image;
 		}
 	}
 }

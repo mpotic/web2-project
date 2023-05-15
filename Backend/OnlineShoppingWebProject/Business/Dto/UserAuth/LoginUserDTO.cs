@@ -1,4 +1,4 @@
-﻿namespace Business.Dto
+﻿namespace Business.Dto.Auth
 {
 	public class LoginUserDto : IDto
 	{

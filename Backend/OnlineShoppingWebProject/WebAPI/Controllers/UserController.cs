@@ -1,7 +1,7 @@
-﻿using Business.Dto;
+﻿using Business.Dto.Auth;
 using Business.Dto.User;
 using Business.Result;
-using Business.Services.Interfaces;
+using Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,55 +21,7 @@ namespace WebAPI.Controllers
 			_userService = userService;
 		}
 
-		[HttpPut("update-user")]
-		[Authorize]
-		public IActionResult UpdateUser([FromBody] BasicUserInfoDto userDto)
-		{
-			try
-			{
-				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
-				JwtDto jwtDto = new JwtDto(token);
-
-				IServiceOperationResult operationResult = _userService.UpdateUser(userDto, jwtDto);
-
-				if (!operationResult.IsSuccessful)
-				{
-					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
-				}
-
-				return Ok();
-			}
-			catch (Exception e)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError);
-			}
-		}
-
-		[HttpPut("change-password")]
-		[Authorize]
-		public IActionResult ChangePassword([FromBody] PasswordChangeDto passwordDto)
-		{
-			try
-			{
-				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
-				JwtDto jwtDto = new JwtDto(token);
-
-				IServiceOperationResult operationResult = _userService.ChangePassword(passwordDto, jwtDto);
-
-				if (!operationResult.IsSuccessful)
-				{
-					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
-				}
-
-				return Ok();
-			}
-			catch (Exception e)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError);
-			}
-		}
-
-		[HttpPut("get-user")]
+		[HttpGet("user")]
 		[Authorize]
 		public IActionResult GetUser()
 		{
@@ -87,13 +39,85 @@ namespace WebAPI.Controllers
 
 				return Ok(operationResult.Dto);
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 		}
 
-		[HttpPut("change-profile-image")]
+		[HttpGet("profile-image")]
+		[Authorize]
+		public IActionResult GetProfileImage()
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _userService.GetProfileImage(jwtDto);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
+			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpPut("user")]
+		[Authorize]
+		public IActionResult UpdateUser([FromBody] BasicUserInfoDto userDto)
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _userService.UpdateUser(userDto, jwtDto);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok();
+			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpPut("password")]
+		[Authorize]
+		public IActionResult ChangePassword([FromBody] PasswordChangeDto passwordDto)
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _userService.ChangePassword(passwordDto, jwtDto);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok();
+			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpPut("profile-image")]
 		[Authorize]
 		public IActionResult ChangeProfileImage([FromForm] ProfileImageDto profileImageDto)
 		{
@@ -111,7 +135,7 @@ namespace WebAPI.Controllers
 
 				return Ok();
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}

@@ -18,8 +18,6 @@ namespace Data.Configurations
 			builder.Property(x => x.Username)
 				.IsRequired();
 
-			builder.HasIndex(x => x.Email)
-				.IsUnique();
 			builder.Property(x => x.Email)
 				.IsRequired();
 

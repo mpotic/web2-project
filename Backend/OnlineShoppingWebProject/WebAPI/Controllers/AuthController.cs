@@ -1,4 +1,4 @@
-﻿using Business.Dto;
+﻿using Business.Dto.Auth;
 using Business.Result;
 using Business.Services;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
 
 				return Ok(operationResult.Dto);
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
 
 				return Ok();
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}

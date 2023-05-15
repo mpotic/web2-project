@@ -1,4 +1,4 @@
-﻿namespace Business.Dto
+﻿namespace Business.Dto.User
 {
 	public enum UserType
 	{

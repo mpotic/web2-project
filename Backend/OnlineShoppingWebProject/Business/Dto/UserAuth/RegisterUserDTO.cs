@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 
-namespace Business.Dto
+namespace Business.Dto.Auth
 {
 	public class RegisterUserDto : IDto
 	{

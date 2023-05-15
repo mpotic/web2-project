@@ -1,4 +1,4 @@
-﻿using Business.Dto;
+﻿using Business.Dto.Auth;
 using Business.Result;
 
 namespace Business.Services

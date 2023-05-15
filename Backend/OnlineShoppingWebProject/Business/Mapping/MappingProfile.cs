@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Business.Dto;
+using Business.Dto.ArticleDto;
+using Business.Dto.Auth;
 using Business.Dto.User;
 using Data.Models;
 
@@ -12,6 +13,8 @@ namespace Business.Mapping
 			MapAuth();
 
 			MapUser();
+
+			MapArticle();
 		}
 
 		public void MapAuth()
@@ -42,6 +45,15 @@ namespace Business.Mapping
 			CreateMap<Customer, UserInfoDto>().ReverseMap();
 
 			CreateMap<Seller, UserInfoDto>().ReverseMap();
+		}
+
+		public void MapArticle()
+		{
+			CreateMap<Article, ArticleInfoDto>().ReverseMap();
+
+			CreateMap<Article, ArticleUpdateDto>().ReverseMap();
+
+			CreateMap<Article, NewArticleDto>().ReverseMap();
 		}
 	}
 }

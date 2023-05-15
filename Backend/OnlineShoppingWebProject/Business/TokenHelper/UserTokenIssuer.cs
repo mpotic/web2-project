@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using Business.Dto.User;
+using Data.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -43,9 +44,10 @@ namespace Business.TokenHelper
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
-				new Claim(ClaimTypes.Role, UserRole.Admin.ToString()),
-				new Claim("role", UserRole.Admin.ToString()),
-				new Claim("id", admin.Id.ToString())
+				new Claim(ClaimTypes.Role, UserType.Admin.ToString()),
+				new Claim("role", UserType.Admin.ToString()),
+				new Claim("id", admin.Id.ToString()),
+				new Claim("username", admin.Username)
 			};
 
 			string token = IssueJwt(claims);
@@ -57,9 +59,10 @@ namespace Business.TokenHelper
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
-				new Claim(ClaimTypes.Role, UserRole.Customer.ToString()),
-				new Claim("role", UserRole.Customer.ToString()),
-				new Claim("id", customer.Id.ToString())
+				new Claim(ClaimTypes.Role, UserType.Customer.ToString()),
+				new Claim("role", UserType.Customer.ToString()),
+				new Claim("id", customer.Id.ToString()),
+				new Claim("username", customer.Username)
 			};
 
 			string token = IssueJwt(claims);
@@ -71,9 +74,10 @@ namespace Business.TokenHelper
 		{
 			List<Claim> claims = new List<Claim>() 
 			{ 
-				new Claim(ClaimTypes.Role, UserRole.Seller.ToString()),
-				new Claim("role", UserRole.Seller.ToString()),
-				new Claim("id", seller.Id.ToString())
+				new Claim(ClaimTypes.Role, UserType.Seller.ToString()),
+				new Claim("role", UserType.Seller.ToString()),
+				new Claim("id", seller.Id.ToString()),
+				new Claim("username", seller.Username)
 			};
 
 			string token = IssueJwt(claims);

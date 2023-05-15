@@ -15,7 +15,6 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using Business.Services;
 using Data.UnitOfWork;
-using Business.Services.Interfaces;
 
 namespace WebAPI
 {
@@ -181,6 +180,8 @@ namespace WebAPI
 			services.AddScoped<IUserAuthService, UserAuthService>();
 
 			services.AddScoped<IUserService, UserService>();
+
+			services.AddScoped<ISellerService, SellerService>();
 		}
 	}
 }

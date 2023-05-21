@@ -1,4 +1,4 @@
-﻿using Business.Dto.ArticleDto;
+﻿using Business.Dto.Article;
 using Business.Util.Interfaces;
 using Data.Models;
 using Microsoft.AspNetCore.Http;
@@ -79,11 +79,11 @@ namespace Business.Util
 			article.ProductImage = newProductImageName;
 		}
 
-		public List<ArticleInfoDto> IncludeProductImageIfExistsToArticles(List<Article> articles)
+		public List<ArticleInfoDto> IncludeImageAndReturnArticlesInfo(List<IArticle> articles)
 		{
 			List<ArticleInfoDto> articleDtoList = new List<ArticleInfoDto>();
 
-			foreach (Article article in articles)
+			foreach (IArticle article in articles)
 			{
 				byte[] productImage = GetArticleProductImage(article);
 				articleDtoList.Add(new ArticleInfoDto(article.Name, article.Description, article.Quantity, productImage));

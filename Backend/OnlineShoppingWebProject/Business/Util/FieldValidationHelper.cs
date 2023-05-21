@@ -11,7 +11,7 @@ namespace Business.Util
 				.Select(pi => (string)pi.GetValue(o))
 				.Any(value => string.IsNullOrEmpty(value));
 
-			return false;
+			return isNullOrEmpty;
 		}
 	}
 }

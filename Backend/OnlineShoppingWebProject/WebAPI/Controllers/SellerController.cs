@@ -1,4 +1,4 @@
-﻿using Business.Dto.ArticleDto;
+﻿using Business.Dto.Article;
 using Business.Dto.Auth;
 using Business.Result;
 using Business.Services;
@@ -44,34 +44,6 @@ namespace WebAPI.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 		}
-		
-		//[HttpGet("new-orders")]
-		//[Authorize(Roles = "Seller")]
-		//public IActionResult NewOrders()
-		//{
-		//	try
-		//	{
-		//		return Ok();
-		//	}
-		//	catch (Exception)
-		//	{
-		//		return StatusCode(StatusCodes.Status500InternalServerError);
-		//	}
-		//}
-
-		//[HttpGet("all-orders")]
-		//[Authorize(Roles = "Seller")]
-		//public IActionResult AllOrders()
-		//{
-		//	try
-		//	{
-		//		return Ok();
-		//	}
-		//	catch (Exception)
-		//	{
-		//		return StatusCode(StatusCodes.Status500InternalServerError);
-		//	}
-		//}
 
 		[HttpPost("article")]
 		[Authorize(Roles = "Seller")]

@@ -7,7 +7,6 @@ using Business.Util;
 using Data.Models;
 using Data.Repository.Util;
 using Data.UnitOfWork;
-using System.IO;
 
 namespace Business.Services
 {

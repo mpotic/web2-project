@@ -1,4 +1,4 @@
-﻿using Business.Dto.ArticleDto;
+﻿using Business.Dto.Article;
 using Business.Dto.Auth;
 using Business.Result;
 

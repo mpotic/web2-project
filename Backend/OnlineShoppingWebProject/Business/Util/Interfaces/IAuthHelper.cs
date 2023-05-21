@@ -1,6 +1,6 @@
 ﻿namespace Business.Util
 {
-	public interface IAuthHelper
+	interface IAuthHelper
 	{
 		bool IsPasswordValid(string inputPassword, string databasePassword);
 		

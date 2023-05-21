@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Business.Dto.ArticleDto;
+using Business.Dto.Article;
 using Business.Dto.Auth;
 using Business.Result;
 using Business.TokenHelper;
@@ -8,6 +8,7 @@ using Business.Util.Interfaces;
 using Data.Models;
 using Data.UnitOfWork;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Business.Services
 {
@@ -15,9 +16,9 @@ namespace Business.Services
 	{
 		IUnitOfWork _unitOfWork;
 
-		IUserTokenIssuer _tokenIssuer;
-
 		IMapper _mapper;
+
+		IUserTokenIssuer _tokenIssuer;
 
 		IUserHelper userHelper;
 
@@ -25,11 +26,11 @@ namespace Business.Services
 
 		ISellerHelper sellerHelper = new SellerHelper();
 
-		public SellerService(IUnitOfWork unitOfWork, IUserTokenIssuer tokenIssuer, IMapper mapper)
+		public SellerService(IUnitOfWork unitOfWork, IMapper mapper, IUserTokenIssuer tokenIssuer)
 		{
 			_unitOfWork = unitOfWork;
-			_tokenIssuer = tokenIssuer;
 			_mapper = mapper;
+			_tokenIssuer = tokenIssuer;
 			userHelper = new UserHelper(unitOfWork);
 		}
 
@@ -51,22 +52,22 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
-			if (user == null)
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
 
 				return operationResult;
 			}
 
-			if (((Seller)user).ApprovalStatus != SellerApprovalStatus.Approved)
+			if (((Seller)seller).ApprovalStatus != SellerApprovalStatus.Approved)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller isn't approved!");
 
 				return operationResult;
 			}
 
-			if (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == user.Id && x.Name == articleDto.Name) != null)
+			if (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == seller.Id && x.Name == articleDto.Name) != null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, $"Seller already has an article named \"{articleDto.Name}\"!");
 
@@ -74,9 +75,9 @@ namespace Business.Services
 			}
 
 			Article article = _mapper.Map<Article>(articleDto);
-			article.SellerId = user.Id;
+			article.SellerId = seller.Id;
 
-			sellerHelper.AddProductImageIfExists(article, articleDto.ProductImage, user.Id);
+			sellerHelper.AddProductImageIfExists(article, articleDto.ProductImage, seller.Id);
 
 			_unitOfWork.ArticleRepository.Add(article);
 			_unitOfWork.Commit();
@@ -90,22 +91,22 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
-			if (user == null)
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
 
 				return operationResult;
 			}
 
-			if (((Seller)user).ApprovalStatus != SellerApprovalStatus.Approved)
+			if (((Seller)seller).ApprovalStatus != SellerApprovalStatus.Approved)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller isn't approved!");
 
 				return operationResult;
 			}
 
-			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == user.Id && x.Name == articleDto.CurrentName);
+			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == seller.Id && x.Name == articleDto.CurrentName);
 			if (article == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, 
@@ -114,7 +115,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			if (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == user.Id && x.Name == articleDto.NewName) != null)
+			if (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == seller.Id && x.Name == articleDto.NewName) != null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, $"Seller already has an article named \"{articleDto.NewName}\"!");
 
@@ -135,18 +136,31 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			long id = int.Parse(_tokenIssuer.GetClaimValueFromToken(jwtDto.Token, "id"));
-			
-			List<Article> articles = _unitOfWork.ArticleRepository.GetAllArticlesFromSeller(id);
-			
-			if(articles.Count == 0)
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
 
 				return operationResult;
 			}
 
-			List<ArticleInfoDto> articleDtoList = sellerHelper.IncludeProductImageIfExistsToArticles(articles);
+			if (((Seller)seller).ApprovalStatus != SellerApprovalStatus.Approved)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller isn't approved!");
+
+				return operationResult;
+			}
+
+			List<IArticle> articles = _unitOfWork.ArticleRepository.GetAllArticlesFromSeller(seller.Id).ToList<IArticle>();
+			
+			if(articles.Count == 0)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller has no articles!");
+
+				return operationResult;
+			}
+
+			List<ArticleInfoDto> articleDtoList = sellerHelper.IncludeImageAndReturnArticlesInfo(articles);
 			ArticleListDto response = new ArticleListDto() { Articles = articleDtoList };
 			operationResult = new ServiceOperationResult(true, response);
 
@@ -157,15 +171,22 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
-			if (user == null)
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
 
 				return operationResult;
 			}
 
-			IArticle article = (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == user.Id && x.Name == articleDto.Name));
+			if (((Seller)seller).ApprovalStatus != SellerApprovalStatus.Approved)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller isn't approved!");
+
+				return operationResult;
+			}
+
+			IArticle article = (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == seller.Id && x.Name == articleDto.Name));
 			if (article == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound,
@@ -174,7 +195,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			sellerHelper.AddProductImageIfExists(article, articleDto.ProductImage, user.Id);
+			sellerHelper.AddProductImageIfExists(article, articleDto.ProductImage, seller.Id);
 
 			_unitOfWork.ArticleRepository.Update((Article)article);
 			_unitOfWork.Commit();
@@ -188,15 +209,22 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			IUser user = userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
-			if (user == null)
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
 
 				return operationResult;
 			}
 
-			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.Name == articleName && x.Id == user.Id);
+			if (((Seller)seller).ApprovalStatus != SellerApprovalStatus.Approved)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller isn't approved!");
+
+				return operationResult;
+			}
+
+			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.Name == articleName && x.Id == seller.Id);
 			if (article == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "The article doesn't exist!");

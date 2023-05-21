@@ -1,6 +1,6 @@
 ﻿namespace Business.Util
 {
-	public interface IFiledValidationHelper
+	interface IFiledValidationHelper
 	{
 		bool AreStringPropsNullOrEmpty(object o);
 	}

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Business.Dto.ArticleDto
+namespace Business.Dto.Article
 {
 	public class ArticleListDto : IDto
 	{

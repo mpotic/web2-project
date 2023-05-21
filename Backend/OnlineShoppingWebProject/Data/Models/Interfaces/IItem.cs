@@ -7,8 +7,6 @@
 		/// </summary>
 		long Id { get; set; }
 
-		string Name { get; set; }
-
 		double PricePerUnit { get; set; }
 
 		int Quantity { get; set; }

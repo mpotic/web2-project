@@ -182,6 +182,10 @@ namespace WebAPI
 			services.AddScoped<IUserService, UserService>();
 
 			services.AddScoped<ISellerService, SellerService>();
+
+			services.AddScoped<IAdminService, AdminService>();
+
+			services.AddScoped<ICustomerService, CustomerService>();
 		}
 	}
 }

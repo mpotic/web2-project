@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Business.Util
 {
-	public interface IUserHelper
+	interface IUserHelper
 	{
 		string ProfileImagesRelativePath { get; }
 

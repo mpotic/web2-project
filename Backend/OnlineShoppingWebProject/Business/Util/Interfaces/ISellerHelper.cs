@@ -1,11 +1,11 @@
-﻿using Business.Dto.ArticleDto;
+﻿using Business.Dto.Article;
 using Data.Models;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
 namespace Business.Util.Interfaces
 {
-	public interface ISellerHelper
+	interface ISellerHelper
 	{
 		void AddProductImageIfExists(IArticle article, IFormFile receivedImage, long sellerId);
 
@@ -13,7 +13,7 @@ namespace Business.Util.Interfaces
 
 		void UpdateProductImagePath(IArticle article);
 
-		List<ArticleInfoDto> IncludeProductImageIfExistsToArticles(List<Article> articles);
+		List<ArticleInfoDto> IncludeImageAndReturnArticlesInfo(List<IArticle> articles);
 
 		void DeleteArticleProductImageIfExists(IArticle article);
 	}

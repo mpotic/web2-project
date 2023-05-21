@@ -12,6 +12,8 @@ namespace Data.Models
 
 		int Quantity { get; set; }
 
+		double Price { get; set; }
+
 		string ProductImage { get; set; }
 
 		/// <summary>

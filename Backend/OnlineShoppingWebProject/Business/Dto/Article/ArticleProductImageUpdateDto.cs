@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Business.Dto.ArticleDto
+namespace Business.Dto.Article
 {
 	public class ArticleProductImageUpdateDto
 	{

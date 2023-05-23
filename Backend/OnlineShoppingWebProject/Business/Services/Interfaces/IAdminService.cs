@@ -6,5 +6,7 @@ namespace Business.Services
 	public interface IAdminService
 	{
 		IServiceOperationResult UpdateSellerApprovalStatus(SellerApprovalStatusDto sellerApprovalDto);
+
+		IServiceOperationResult GetAllSellers();
 	}
 }

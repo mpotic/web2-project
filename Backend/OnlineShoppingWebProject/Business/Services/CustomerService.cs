@@ -63,7 +63,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			List<IOrder> orders = _unitOfWork.OrderRepository.FindAll(x => x.CustomerId == customer.Id).ToList<IOrder>();
+			List<IOrder> orders = _unitOfWork.OrderRepository.FindAllIncludeItems(x => x.CustomerId == customer.Id).ToList<IOrder>();
 
 			orders = orderHelper.GetFinishedOrders(orders);
 			OrderInfoListDto orderListDto = new OrderInfoListDto()
@@ -95,6 +95,12 @@ namespace Business.Services
 			{
 				Orders = _mapper.Map<List<OrderInfoDto>>(orders)
 			};
+
+			foreach(var orderDto in orderListDto.Orders)
+			{
+				IOrder relatedOrder = orders.Find(x => x.Id == orderDto.Id);
+				orderDto.RemainingTime = orderHelper.CalculateDeliveryRemainingTime(orderDto.PlacedTime, relatedOrder.DeliveryDurationInSeconds);
+			}
 
 			operationResult = new ServiceOperationResult(true, orderListDto);
 
@@ -184,7 +190,7 @@ namespace Business.Services
 			return operationResult;
 		}
 
-		public IServiceOperationResult CancleOrder(long orderId, JwtDto jwtDto)
+		public IServiceOperationResult CancelOrder(long orderId, JwtDto jwtDto)
 		{
 			IServiceOperationResult operationResult;
 
@@ -196,12 +202,18 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			IOrder order = _unitOfWork.OrderRepository.FindFirst(x => x.Id == orderId);
+			IOrder order = _unitOfWork.OrderRepository.FindFirstIncludeItems(x => x.Id == orderId);
 			if(order == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Order doesn't exist!");
 
 				return operationResult;
+			}
+
+			foreach(var item in order.Items)
+			{
+				IArticle article = _unitOfWork.ArticleRepository.FindFirst(article => article.Id == item.ArticleId);
+				article.Quantity += item.Quantity;
 			}
 
 			if (!orderHelper.IsOrderCancelable(order))

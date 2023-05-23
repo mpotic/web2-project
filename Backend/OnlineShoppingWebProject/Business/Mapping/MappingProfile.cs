@@ -2,6 +2,7 @@
 using Business.Dto.Article;
 using Business.Dto.Auth;
 using Business.Dto.Order;
+using Business.Dto.Seller;
 using Business.Dto.User;
 using Data.Models;
 
@@ -48,6 +49,8 @@ namespace Business.Mapping
 			CreateMap<Customer, UserInfoDto>().ReverseMap();
 
 			CreateMap<Seller, UserInfoDto>().ReverseMap();
+
+			CreateMap<Seller, SellerInfoDto>().ReverseMap();
 		}
 
 		public void MapArticle()

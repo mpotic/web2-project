@@ -4,6 +4,8 @@ using Business.Result;
 using Business.Util;
 using Data.Models;
 using Data.UnitOfWork;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Business.Services
 {
@@ -40,6 +42,25 @@ namespace Business.Services
 			_unitOfWork.Commit();
 
 			operationResult = new ServiceOperationResult(true);
+
+			return operationResult;
+		}
+
+		public IServiceOperationResult GetAllSellers()
+		{
+			IServiceOperationResult operationResult;
+
+			List<ISeller> sellers = _unitOfWork.SellerRepository.GetAll().ToList<ISeller>();
+			List<SellerInfoDto> sellerInfoDtoList = _mapper.Map<List<SellerInfoDto>>(sellers);
+			SellerListDto sellerListDto = new SellerListDto() { Sellers = sellerInfoDtoList };
+
+			foreach(var sellerDto in sellerListDto.Sellers)
+			{
+				string imagePath = sellers.Find(seller => seller.Username == sellerDto.Username).ProfileImage;
+				sellerDto.SellerProfileImage = userHelper.GetProfileImage(imagePath);
+			}
+
+			operationResult = new ServiceOperationResult(true, sellerListDto);
 
 			return operationResult;
 		}

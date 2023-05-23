@@ -15,5 +15,9 @@ namespace Business.Services
 		IServiceOperationResult UpdateArticleProductImage(ArticleProductImageUpdateDto articleDto, JwtDto jwtDto);
 
 		IServiceOperationResult DeleteArticle(string articleName, JwtDto jwtDto);
+
+		IServiceOperationResult GetPendingOrders(JwtDto jwtDto);
+
+		IServiceOperationResult GetFinishedOrders(JwtDto jwtDto);
 	}
 }

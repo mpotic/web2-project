@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.Dto.Article;
 using Business.Dto.Auth;
+using Business.Dto.Order;
 using Business.Result;
 using Business.TokenHelper;
 using Business.Util;
@@ -25,6 +26,8 @@ namespace Business.Services
 		IFiledValidationHelper validationHelper = new FieldValidationHelper();
 
 		ISellerHelper sellerHelper = new SellerHelper();
+
+		IOrderHelper orderHelper = new OrderHelper();
 
 		public SellerService(IUnitOfWork unitOfWork, IMapper mapper, IUserTokenIssuer tokenIssuer)
 		{
@@ -238,6 +241,68 @@ namespace Business.Services
 			sellerHelper.DeleteArticleProductImageIfExists(article);
 
 			operationResult = new ServiceOperationResult(true);
+
+			return operationResult;
+		}
+
+		public IServiceOperationResult GetFinishedOrders(JwtDto jwtDto)
+		{
+			IServiceOperationResult operationResult;
+
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
+
+				return operationResult;
+			}
+
+			// Find all orders that have items which belong to the seller in question
+			List<IOrder> orders = _unitOfWork.OrderRepository.FindAllIncludeItemsIncludeArticles(
+				order => order.Items.FirstOrDefault(item => item.Article.SellerId == seller.Id) != null).ToList<IOrder>();
+
+			orders.RemoveAll(order => orderHelper.IsOrderPending(order));
+
+			// Only take items that are related to the article of the seller in question
+			orders.ForEach(order => order.Items = order.Items.ToList().FindAll(item => item.Article.SellerId == seller.Id));
+
+			OrderInfoListDto orderListDto = new OrderInfoListDto()
+			{
+				Orders = _mapper.Map<List<OrderInfoDto>>(orders)
+			};
+
+			operationResult = new ServiceOperationResult(true, orderListDto);
+
+			return operationResult;
+		}
+
+		public IServiceOperationResult GetPendingOrders(JwtDto jwtDto)
+		{
+			IServiceOperationResult operationResult;
+
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
+
+				return operationResult;
+			}
+
+			// Find all orders that have items which belong to the seller in question
+			List<IOrder> orders = _unitOfWork.OrderRepository.FindAllIncludeItemsIncludeArticles(
+				order => order.Items.FirstOrDefault(item => item.Article.SellerId == seller.Id) != null).ToList<IOrder>();
+
+			orders.RemoveAll(order => !orderHelper.IsOrderPending(order));
+
+			// Only take items that are related to the article of the seller in question
+			orders.ForEach(order => order.Items = order.Items.ToList().FindAll(item => item.Article.SellerId == seller.Id));
+
+			OrderInfoListDto orderListDto = new OrderInfoListDto()
+			{
+				Orders = _mapper.Map<List<OrderInfoDto>>(orders)
+			};
+
+			operationResult = new ServiceOperationResult(true, orderListDto);
 
 			return operationResult;
 		}

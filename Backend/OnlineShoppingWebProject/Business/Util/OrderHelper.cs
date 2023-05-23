@@ -12,8 +12,7 @@ namespace Business.Util
 
 			foreach (var order in orders)
 			{
-				int secondsPassed = (int)(GetDateTimeAsCEST(DateTime.Now) - order.PlacedTime).TotalSeconds;
-				if (order.DeliveryDurationInSeconds > secondsPassed)
+				if (IsOrderPending(order))
 				{
 					pendingOrders.Add(order);
 				}
@@ -28,8 +27,7 @@ namespace Business.Util
 
 			foreach (var order in orders)
 			{
-				int secondsPassed = (int)(GetDateTimeAsCEST(DateTime.Now) - order.PlacedTime).TotalSeconds;
-				if (order.DeliveryDurationInSeconds < secondsPassed)
+				if (!IsOrderPending(order))
 				{
 					finishedOrders.Add(order);
 				}
@@ -54,6 +52,33 @@ namespace Business.Util
 			}
 
 			return true;
+		}
+
+		public string CalculateDeliveryRemainingTime(DateTime placedTime, int deliveryTimeInSeconds)
+		{
+			int secondsPassed = (int)(GetDateTimeAsCEST(DateTime.Now) - placedTime).TotalSeconds;
+			int secondsLeft = deliveryTimeInSeconds - secondsPassed;
+
+			if(secondsLeft < 0)
+			{
+				secondsLeft = 0;
+			}
+
+			TimeSpan timeSpan = TimeSpan.FromSeconds(secondsLeft);
+			string formattedTime = timeSpan.ToString(@"hh\:mm\:ss");
+
+			return formattedTime;
+		}
+
+		public bool IsOrderPending(IOrder order)
+		{
+			int secondsPassed = (int)(GetDateTimeAsCEST(DateTime.Now) - order.PlacedTime).TotalSeconds;
+			if (order.DeliveryDurationInSeconds > secondsPassed)
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

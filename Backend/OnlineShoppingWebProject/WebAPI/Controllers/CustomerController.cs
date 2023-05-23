@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
 				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
 				JwtDto jwtDto = new JwtDto(token);
 
-				IServiceOperationResult operationResult = _customerService.CancleOrder(orderId, jwtDto);
+				IServiceOperationResult operationResult = _customerService.CancelOrder(orderId, jwtDto);
 
 				if (!operationResult.IsSuccessful)
 				{

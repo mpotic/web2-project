@@ -13,5 +13,9 @@ namespace Business.Util
 		public DateTime GetDateTimeAsCEST(DateTime dateTime);
 
 		bool IsOrderCancelable(IOrder order);
+
+		string CalculateDeliveryRemainingTime(DateTime placedTime, int deliveryTimeInSeconds);
+
+		bool IsOrderPending(IOrder order);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Business.Dto.Order
 {
@@ -11,6 +12,10 @@ namespace Business.Dto.Order
 		public string Address { get; set; }
 
 		public double TotalPrice { get; set; }
+
+		public DateTime PlacedTime { get; set; }
+
+		public string RemainingTime { get; set; }
 
 		public ICollection<ItemInfoDto> Items { get; set; }
 	}

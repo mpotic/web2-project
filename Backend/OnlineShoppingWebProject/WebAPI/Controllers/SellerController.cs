@@ -45,6 +45,54 @@ namespace WebAPI.Controllers
 			}
 		}
 
+		[HttpGet("finished-orders")]
+		[Authorize(Roles = "Seller")]
+		public IActionResult FinishedOrders()
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _sellerService.GetFinishedOrders(jwtDto);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
+			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpGet("pending-orders")]
+		[Authorize(Roles = "Seller")]
+		public IActionResult PendingOrders()
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _sellerService.GetPendingOrders(jwtDto);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
+			}
+			catch (Exception e)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
 		[HttpPost("article")]
 		[Authorize(Roles = "Seller")]
 		public IActionResult AddArticle([FromForm] NewArticleDto article)

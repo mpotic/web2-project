@@ -19,6 +19,27 @@ namespace WebAPI.Controllers
 			_adminService = adminService;
 		}
 
+		[HttpGet("sellers")]
+		[Authorize(Roles = "Admin")]
+		public IActionResult AllSellers()
+		{
+			try
+			{
+				IServiceOperationResult operationResult = _adminService.GetAllSellers();
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
+			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
 		[HttpPut("seller-approval-status")]
 		[Authorize(Roles = "Admin")]
 		public IActionResult UpdateSellersApprovalStatus(SellerApprovalStatusDto sellerApprovalStatusDto)

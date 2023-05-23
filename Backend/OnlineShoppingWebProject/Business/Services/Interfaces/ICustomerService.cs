@@ -14,6 +14,6 @@ namespace Business.Services
 
 		IServiceOperationResult PlaceOrder(PlaceOrderDto orderDto, JwtDto jwDto);
 
-		IServiceOperationResult CancleOrder(long orderId, JwtDto jwtDto);
+		IServiceOperationResult CancelOrder(long orderId, JwtDto jwtDto);
 	}
 }

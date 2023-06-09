@@ -166,13 +166,12 @@ namespace WebAPI
 			{
 				options.AddPolicy(name: _cors, builder =>
 				{
-					builder.WithOrigins("https://localhost:4200")
+					builder.WithOrigins("http://localhost:3000")
 						   .AllowAnyHeader()
 						   .AllowAnyMethod()
 						   .AllowCredentials();
 				});
 			});
-
 		}
 
 		public void ConfigureBusinessServices(IServiceCollection services)

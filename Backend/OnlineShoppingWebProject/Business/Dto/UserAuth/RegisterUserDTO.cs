@@ -17,7 +17,7 @@ namespace Business.Dto.Auth
 
 		public string Address { get; set; }
 
-		public string Type { get; set; }
+		public string Role { get; set; }
 
 		public IFormFile ProfileImage { get; set; }
 

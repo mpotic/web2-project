@@ -1,41 +1,66 @@
 import { useCallback, useState } from 'react';
+import { getRawToken } from '../utils/tokenUtils';
 
 const useHttp = (resolve) => {
   const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [statusCode, setStatusCode] = useState(null);
 
-  const getErrorMsg = (method, statusCode) => {
-    switch (statusCode) {
-      case 401:
-        return 'Invalid credentials!';
-      default:
-        if (method === 'GET') {
-          return 'Failed to fetch data from the server!';
-        } else if (method === 'POST') {
-          return 'Failed to post data to the server!';
-        } else if (method === 'PUT') {
-          return 'Failed to update data on the server!';
-        } else {
-          return 'Failed to process the request!';
-        }
+  const prepare = () => {
+    setIsLoading(true);
+    setError(null);
+    setStatusCode(null);
+    setData(null);
+  };
+
+  const processResponse = (response) => {
+    setStatusCode(response.status);
+    // Action if its JSON response
+    if (response.headers.get('content-type')?.includes('application/json')) {
+      if (!response.ok) {
+        return response.json().then((data) => {
+          const errorMessage = data.message || data.title || '';
+
+          throw new Error(errorMessage);
+        });
+      }
+      return response.json();
+    }
+    // Action if its TEXT response
+    else if (response.headers.get('content-type')?.includes('text/plain')) {
+      if (!response.ok) {
+        return response.text().then((errorMessage) => {
+          throw new Error(errorMessage);
+        });
+      }
+    }
+    // Action for neither
+    else {
+      if (!response.ok) {
+        const errorMessage = response?.title || '';
+        throw new Error(errorMessage);
+      }
     }
   };
 
   const getRequest = useCallback(
     (url) => {
-      setIsLoading(true);
-      fetch(url, { method: 'GET', mode: 'cors', credentials: 'include' })
+      prepare();
+
+      fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + getRawToken(),
+        },
+      })
         .then((response) => {
-          setStatusCode(response.status);
-          if (!response.ok)
-            throw new Error(getErrorMsg('GET', response.status));
-          return response.json();
+          return processResponse(response);
         })
         .then((data) => {
           setData(data);
-          setError(null);
         })
         .catch((error) => {
           setError('Error doing GET request! ' + error);
@@ -50,25 +75,22 @@ const useHttp = (resolve) => {
 
   const postRequest = useCallback(
     (url, data) => {
-      setIsLoading(true);
+      prepare();
+
       fetch(url, {
         method: 'post',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(data),
         mode: 'cors',
-        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + getRawToken(),
+        },
       })
         .then((response) => {
-          setStatusCode(response.status);
-          if (!response.ok)
-            throw new Error(getErrorMsg('POST', response.status));
-          return response.json();
+          return processResponse(response);
         })
         .then((data) => {
           setData(data);
-          setError(null);
         })
         .catch((error) => {
           setError('Error doing POST request! ' + error.message);
@@ -83,23 +105,22 @@ const useHttp = (resolve) => {
 
   const putRequest = useCallback(
     (url, data) => {
-      setIsLoading(true);
+      prepare();
+
       fetch(url, {
         method: 'put',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
         mode: 'cors',
-        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + getRawToken(),
+        },
       })
         .then((response) => {
-          setStatusCode(response.status);
-          if (!response.ok)
-            throw new Error(getErrorMsg('PUT', response.status));
-          return response.json();
+          return processResponse(response);
         })
         .then((data) => {
           setData(data);
-          setError(null);
         })
         .catch((error) => {
           setError('Error doing PUT request! ' + error.message);
@@ -114,7 +135,7 @@ const useHttp = (resolve) => {
 
   const putRequestFormData = useCallback(
     (url, data) => {
-      setIsLoading(true);
+      prepare();
 
       const formData = new FormData();
       for (const key in data) {
@@ -125,18 +146,16 @@ const useHttp = (resolve) => {
         method: 'put',
         body: formData,
         mode: 'cors',
-        credentials: 'include',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: 'Bearer ' + getRawToken(),
+        },
       })
         .then((response) => {
-          setStatusCode(response.status);
-          if (!response.ok) {
-            throw new Error(getErrorMsg('PUT', response.status));
-          }
-          return response.json();
+          return processResponse(response);
         })
         .then((data) => {
           setData(data);
-          setError(null);
         })
         .catch((error) => {
           setError('Error doing PUT request! ' + error.message);
@@ -151,31 +170,26 @@ const useHttp = (resolve) => {
 
   const postRequestFormData = useCallback(
     (url, data) => {
-      setIsLoading(true);
-
+      prepare();
+      console.log(data);
       const formData = new FormData();
       for (const key in data) {
         formData.append(key, data[key]);
       }
 
-      console.log(formData);
-
       fetch(url, {
         method: 'post',
         body: formData,
         mode: 'cors',
-        credentials: 'include',
+        headers: {
+          Authorization: 'Bearer ' + getRawToken(),
+        },
       })
         .then((response) => {
-          setStatusCode(response.status);
-          if (!response.ok) {
-            throw new Error(getErrorMsg('POST', response.status));
-          }
-          return response.json();
+          return processResponse(response);
         })
         .then((data) => {
           setData(data);
-          setError(null);
         })
         .catch((error) => {
           setError('Error doing POST request! ' + error.message);

@@ -39,14 +39,14 @@ namespace Business.Services
 
 			if (user == null)
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "User doesn't exist!");
 
 				return operationResult;
 			}
 
 			if (!authHelper.IsPasswordValid(loginDto.Password, user.Password))
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Unauthorized);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Unauthorized, "Incorrect password!");
 
 				return operationResult;
 			}
@@ -84,9 +84,16 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			if (authHelper.IsPasswordWeak(registerDto.Password) || !authHelper.IsEmailValid(registerDto.Email))
+			if (authHelper.IsPasswordWeak(registerDto.Password))
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest, "Password should be at least 6 characters long!");
+
+				return operationResult;
+			}
+
+			if (!authHelper.IsEmailValid(registerDto.Email))
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest, "Email address is invalid!");
 
 				return operationResult;
 			}
@@ -110,7 +117,7 @@ namespace Business.Services
 
 		private IUser CreateUserAndAddToRepository(RegisterUserDto registerDto)
 		{
-			if (registerDto.Type == UserType.Admin.ToString())
+			if (registerDto.Role == UserType.Admin.ToString())
 			{
 				Admin admin = _mapper.Map<Admin>(registerDto);
 				userHelper.UploadProfileImage(admin, registerDto.ProfileImage);
@@ -118,7 +125,7 @@ namespace Business.Services
 
 				return admin;
 			}
-			else if (registerDto.Type == UserType.Customer.ToString())
+			else if (registerDto.Role == UserType.Customer.ToString())
 			{
 				Customer customer = _mapper.Map<Customer>(registerDto);
 				userHelper.UploadProfileImage(customer, registerDto.ProfileImage);
@@ -126,7 +133,7 @@ namespace Business.Services
 
 				return customer;
 			}
-			else if (registerDto.Type == UserType.Seller.ToString())
+			else if (registerDto.Role == UserType.Seller.ToString())
 			{
 				Seller seller = _mapper.Map<Seller>(registerDto);
 				seller.ApprovalStatus = SellerApprovalStatus.Pending;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/material';
 
@@ -9,6 +9,7 @@ export default function UploadButton({
   maxHeightPerc,
 }) {
   const [imageUrl, setImageUrl] = useState(null);
+  const inputRef = useRef();
 
   maxWidthPerc = maxWidthPerc ?? '50%';
   maxHeightPerc = maxHeightPerc ?? '50%';
@@ -16,11 +17,15 @@ export default function UploadButton({
   const handleFileUpload = (event) => {
     try {
       const file = event.target.files[0];
-      const reader = new FileReader();
+      if (file == null) {
+        return;
+      }
 
+      callback(file);
+
+      const reader = new FileReader();
       reader.onloadend = () => {
         setImageUrl(reader.result);
-        callback(reader.result);
       };
 
       reader.readAsDataURL(file);
@@ -45,6 +50,7 @@ export default function UploadButton({
           onDoubleClick={(e) => {
             setImageUrl(null);
             callback(null);
+            inputRef.current.value = null;
           }}
         />
       )}
@@ -53,6 +59,7 @@ export default function UploadButton({
           Upload
         </Button>
         <input
+          ref={inputRef}
           id='upload-image'
           hidden
           accept='image/*'

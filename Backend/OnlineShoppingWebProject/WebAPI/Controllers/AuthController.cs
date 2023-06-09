@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
 
 				if (!operationResult.IsSuccessful)
 				{
-					return StatusCode((int)operationResult.ErrorCode);
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
 				}
 
 				return Ok(operationResult.Dto);
@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
 			}
 		}
 
-		[HttpPost("regiser")]
+		[HttpPost("register")]
 		public IActionResult RegisterUser([FromForm]RegisterUserDto registerDto)
 		{
 			try
@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
 					}
 					else
 					{
-						return StatusCode((int)HttpStatusCode.BadRequest);
+						return StatusCode((int)HttpStatusCode.BadRequest, "Error doing the request...");
 					}
 				}
 

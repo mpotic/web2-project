@@ -18,6 +18,15 @@ export const getToken = () => {
   }
 };
 
+const isTokenExpired = () => {
+  const token = getToken();
+
+  const expirationTime = token.exp;
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  return expirationTime < currentTime;
+};
+
 export const isLoggedin = () => {
   const token = window.localStorage.getItem('token');
 
@@ -37,7 +46,7 @@ export const isLoggedin = () => {
 // Gets token JSON object
 export const getRawToken = () => {
   const token = window.localStorage.getItem('token');
-  const tokenJson = token && JSON.parse(token);
+  const tokenJson = token && JSON.parse(token)?.token;
 
   return tokenJson;
 };
@@ -60,11 +69,18 @@ export const getUsername = () => {
   return token?.username;
 };
 
+export const getStatus = () => {
+  const token = getToken();
+
+  return token?.status;
+};
+
 export const getUser = () => {
   const user = {
     username: getUsername(),
     role: getRole(),
     id: getId(),
+    status: getStatus(),
     rawToken: getRawToken(),
   };
 
@@ -86,12 +102,14 @@ export const removeToken = () => {
 };
 
 const tokenUtils = {
-  isLoggedin,
   getToken,
+  isTokenExpired,
+  isLoggedin,
   getRawToken,
   getRole,
   getId,
   getUsername,
+  getStatus,
   getUser,
   saveToken,
   removeToken,

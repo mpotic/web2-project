@@ -12,7 +12,7 @@ import {
 
 import MyBackdrop from '../../components/MyBackdrop';
 
-import styles from '../../style/authStyles';
+import styles from '../../style/centerFormStyles';
 import { toasterUtil as toaster } from '../../utils/toasterUtil';
 import UserContext from '../../context/UserContext';
 import useServices from '../../services/useServices';

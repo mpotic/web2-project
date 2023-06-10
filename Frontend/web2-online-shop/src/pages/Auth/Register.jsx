@@ -15,13 +15,13 @@ import {
   Box,
 } from '@mui/material';
 
+import styles from '../../style/centerFormStyles';
+
 import Calendar from '../../components/Calendar';
 import UploadButtons from '../../components/UploadButton';
 import { formatDateTime } from '../../utils/dateTimeUtils';
 import MyBackdrop from '../../components/MyBackdrop';
 import useServices from '../../services/useServices';
-
-import styles from '../../style/authStyles';
 import { toasterUtil as toaster } from '../../utils/toasterUtil';
 
 const Register = () => {
@@ -42,14 +42,17 @@ const Register = () => {
       }
     }
 
+    console.log(user.current.profileImage);
     registerRequest(user.current);
   };
+
+  console.log(user.current.birthdate);
 
   useEffect(() => {
     if (isLoading) {
       return;
     } else if (statusCode === 200 && !error) {
-      toaster.handleSuccess();
+      toaster.handleSuccess('Successfully registered!');
     } else if (statusCode !== 200 && error) {
       toaster.handleError(statusCode, error);
     }
@@ -150,6 +153,7 @@ const Register = () => {
               sx={styles.textField}
               error={validity.birthdate.error}
               helperText={validity.birthdate.helper}
+              disableFuture={true}
               callback={(date) => {
                 date = date == null ? null : formatDateTime(date);
                 user.current.birthdate = date;
@@ -186,7 +190,12 @@ const Register = () => {
               maxHeightPerc='55%'
               maxWidthPerc='55%'
               id='profileImage'
-              callback={(file) => {
+              uploadCallback={(file) => {
+                user.current.profileImage = file;
+                setIsAddedImage(!!file);
+                console.log(file);
+              }}
+              doubleClickCallback={(file) => {
                 user.current.profileImage = file;
                 setIsAddedImage(!!file);
               }}
@@ -301,7 +310,7 @@ const validateFields = (user) => {
         updatedFieldValidity.repeatPassword.helper = 'Passwords do not match';
       }
 
-      // Check birthdate is in the future
+      // Check if birthdate is in the future
       if (field === 'birthdate') {
         const today = new Date();
         const birthdate = new Date(user.birthdate);

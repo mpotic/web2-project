@@ -77,7 +77,8 @@ namespace Business.TokenHelper
 				new Claim(ClaimTypes.Role, UserType.Seller.ToString()),
 				new Claim("role", UserType.Seller.ToString()),
 				new Claim("id", seller.Id.ToString()),
-				new Claim("username", seller.Username)
+				new Claim("username", seller.Username),
+				new Claim("status", seller.ApprovalStatus.ToString())
 			};
 
 			string token = IssueJwt(claims);

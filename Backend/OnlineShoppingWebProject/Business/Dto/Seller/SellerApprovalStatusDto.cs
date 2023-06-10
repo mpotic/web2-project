@@ -4,6 +4,6 @@
 	{
 		public bool SellerApprovalStatus { get; set; }
 
-		public string SellerName { get; set; }
+		public string SellerUsername { get; set; }
 	}
 }

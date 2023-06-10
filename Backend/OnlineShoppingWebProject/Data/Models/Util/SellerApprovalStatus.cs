@@ -2,7 +2,7 @@
 {
 	public enum SellerApprovalStatus
 	{
-		Pending,
+		Pending = 0,
 		Approved,
 		Denied
 	}

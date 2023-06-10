@@ -106,7 +106,7 @@ const useHttp = (resolve) => {
   const putRequest = useCallback(
     (url, data) => {
       prepare();
-
+      console.log(url, data);
       fetch(url, {
         method: 'put',
         body: JSON.stringify(data),
@@ -137,6 +137,7 @@ const useHttp = (resolve) => {
     (url, data) => {
       prepare();
 
+      console.log(data);
       const formData = new FormData();
       for (const key in data) {
         formData.append(key, data[key]);
@@ -147,7 +148,6 @@ const useHttp = (resolve) => {
         body: formData,
         mode: 'cors',
         headers: {
-          'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + getRawToken(),
         },
       })
@@ -171,7 +171,7 @@ const useHttp = (resolve) => {
   const postRequestFormData = useCallback(
     (url, data) => {
       prepare();
-      console.log(data);
+
       const formData = new FormData();
       for (const key in data) {
         formData.append(key, data[key]);

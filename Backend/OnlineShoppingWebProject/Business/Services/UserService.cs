@@ -61,10 +61,17 @@ namespace Business.Services
 				return operationResult;
 			}
 
+			if (user.ProfileImage == null)
+			{
+				operationResult = new ServiceOperationResult(true);
+				return operationResult;
+			}
+
 			byte[] image = userHelper.GetProfileImage(user.ProfileImage);
 			if (image == null)
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Users profile image has not been found!");
+				//operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Users profile image has not been found!");
+				operationResult = new ServiceOperationResult(true);
 				return operationResult;
 			}
 
@@ -134,14 +141,14 @@ namespace Business.Services
 			IAuthHelper authHelper = new AuthHelper();
 			if(!authHelper.IsPasswordValid(passwordDto.OldPassword, user.Password))
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Unauthorized);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Unauthorized, "Invalid current password!");
 
 				return operationResult;
 			}
 
 			if (authHelper.IsPasswordWeak(passwordDto.NewPassword))
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest);
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest, "Password should be at least 6 characters long!");
 
 				return operationResult;
 			}

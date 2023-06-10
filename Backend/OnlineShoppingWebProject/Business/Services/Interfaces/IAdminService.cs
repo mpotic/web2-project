@@ -8,5 +8,7 @@ namespace Business.Services
 		IServiceOperationResult UpdateSellerApprovalStatus(SellerApprovalStatusDto sellerApprovalDto);
 
 		IServiceOperationResult GetAllSellers();
+
+		IServiceOperationResult AllOrders();
 	}
 }

@@ -9,6 +9,7 @@ const UserContext = createContext({
   isLoggedin: false,
   username: '',
   role: '',
+  status: null,
   rawToken: '',
 });
 
@@ -29,15 +30,20 @@ export const UserContextProvider = ({ children }) => {
     setUser(userInit);
   }, []);
 
-  const loadUser = () => {
+  const loadUser = useCallback(() => {
     if (!tokenUtils.isLoggedin()) {
+      return;
+    }
+
+    if (tokenUtils.isTokenExpired()) {
+      tokenUtils.removeToken();
       return;
     }
 
     setIsLoggedin(tokenUtils.isLoggedin());
     const user = tokenUtils.getUser();
     setUser(user);
-  };
+  }, []);
 
   return (
     <UserContext.Provider
@@ -49,6 +55,7 @@ export const UserContextProvider = ({ children }) => {
         username: user.username,
         role: user.role,
         rawToken: user.rawToken,
+        status: user.status,
       }}
     >
       {children}
@@ -59,6 +66,7 @@ export const UserContextProvider = ({ children }) => {
 const userInit = {
   username: '',
   role: '',
+  status: null,
   rawToken: '',
 };
 

@@ -6,6 +6,7 @@ using Data.Models;
 using Data.UnitOfWork;
 using System.Collections.Generic;
 using System.Linq;
+using Business.Dto.Order;
 
 namespace Business.Services
 {
@@ -28,7 +29,7 @@ namespace Business.Services
 		{
 			IServiceOperationResult operationResult;
 
-			ISeller seller = (ISeller)userHelper.FindUserByUsername(sellerApprovalDto.SellerName);
+			ISeller seller = (ISeller)userHelper.FindUserByUsername(sellerApprovalDto.SellerUsername);
 			if (seller == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
@@ -61,6 +62,21 @@ namespace Business.Services
 			}
 
 			operationResult = new ServiceOperationResult(true, sellerListDto);
+
+			return operationResult;
+		}
+
+		public IServiceOperationResult AllOrders()
+		{
+			IServiceOperationResult operationResult;
+
+			List<IOrder> allOrders = _unitOfWork.OrderRepository.GetAll().ToList<IOrder>();
+			OrderInfoListDto orderInfoListDto = new OrderInfoListDto()
+			{
+				Orders = _mapper.Map<List<OrderInfoDto>>(allOrders)
+			};
+
+			operationResult = new ServiceOperationResult(true, orderInfoListDto);
 
 			return operationResult;
 		}

@@ -13,6 +13,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   paper: {
     display: 'flex',

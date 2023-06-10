@@ -142,6 +142,11 @@ namespace Business.Util
 
 		public byte[] GetProfileImage(string profileImageName)
 		{
+			if(profileImageName == null)
+			{
+				return null;
+			}
+
 			string path = Path.Combine(ProfileImagesRelativePath, profileImageName);
 
 			if (!File.Exists(path))

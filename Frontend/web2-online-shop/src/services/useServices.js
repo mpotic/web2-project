@@ -17,6 +17,37 @@ const getAllSellersUrl =
 const updateSellerStatusUrl =
   baseUrl + process.env.REACT_APP_API_UPDATE_APPROVAL_STATUS_URL;
 const allOrdersUrl = baseUrl + process.env.REACT_APP_API_ALL_ORDERS_URL;
+const adminOrderDetailsUrl =
+  baseUrl + process.env.REACT_APP_API_ORDER_DETAILS_URL;
+const getSellersFinishedOrdersUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_FINISHED_ORDERS_URL;
+const getSellersPendingOrdersUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_PENDING_ORDERS_URL;
+const getSellersOrderDetailsUrl =
+  baseUrl + process.env.REACT_APP_API_ORDER_DETAILS_URL;
+const getSellerArticleDetailsUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_GET_ARTICLE_DETAILS_URL;
+const getSellerArticlesUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_ARTICLES_URL;
+const updateArticleUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_UPDATE_ARTICLE_URL;
+const updateArticleProductImageUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_UPDATE_ARTICLE_IMAGE_URL;
+// const deleteArticleUrl =
+//   baseUrl + process.env.REACT_APP_API_SELLER_DELETE_ARTICLE_URL;
+const postArticleUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_POST_ARTICLE_URL;
+const customerFinishedOrdersUrl =
+  baseUrl + process.env.REACT_APP_API_CUSTOMER_FINISHED_ORDERS_URL;
+const customerPendingOrdersUrl =
+  baseUrl + process.env.REACT_APP_API_CUSTOMER_PENDING_ORDERS_URL;
+const customerArticlesUrl =
+  baseUrl + process.env.REACT_APP_API_CUSTOMER_ARTICLES_URL;
+const customerOrderUrl = baseUrl + process.env.REACT_APP_API_CUSTOMER_ORDER_URL;
+// const customerDeleteOrderUrl =
+//   baseUrl + process.env.REACT_APP_API_CUSTOMER_DELETE_ORDER;
+const customerPostOrderUrl =
+  baseUrl + process.env.REACT_APP_API_CUSTOMER_POST_ORDER_URL;
 
 const useServices = () => {
   const {
@@ -90,6 +121,80 @@ const useServices = () => {
     getRequest(allOrdersUrl);
   }, [getRequest]);
 
+  const getAdminOrderDetailsRequest = useCallback(
+    (id) => {
+      getRequest(adminOrderDetailsUrl + '?id=' + id);
+    },
+    [getRequest]
+  );
+
+  const getSellersFinishedOrders = useCallback(() => {
+    getRequest(getSellersFinishedOrdersUrl);
+  }, [getRequest]);
+
+  const getSellersPendingOrders = useCallback(() => {
+    getRequest(getSellersPendingOrdersUrl);
+  }, [getRequest]);
+
+  const getSellersOrderDetailsRequest = useCallback(
+    (id) => {
+      getRequest(getSellersOrderDetailsUrl + '?id=' + id);
+    },
+    [getRequest]
+  );
+
+  const getSellerArticleDetailsRequest = useCallback(
+    (name) => {
+      getRequest(getSellerArticleDetailsUrl + '?name=' + name);
+    },
+    [getRequest]
+  );
+
+  const getSellersArticlesRequest = useCallback(() => {
+    getRequest(getSellerArticlesUrl);
+  }, [getRequest]);
+
+  const updateArticleRequest = useCallback(
+    (article) => {
+      putRequest(updateArticleUrl, article);
+    },
+    [putRequest]
+  );
+
+  const updateArticleProductImageRequest = useCallback(
+    (article) => {
+      putRequestFormData(updateArticleProductImageUrl, article);
+    },
+    [putRequestFormData]
+  );
+
+  const postArticleRequest = useCallback(
+    (article) => {
+      postRequestFormData(postArticleUrl, article);
+    },
+    [postRequestFormData]
+  );
+
+  const getCustomerFinishedOrdersRequest = useCallback(() => {
+    getRequest(customerFinishedOrdersUrl);
+  }, [getRequest]);
+
+  const getCustomerPendingOrdersRequest = useCallback(() => {
+    getRequest(customerPendingOrdersUrl);
+  }, [getRequest]);
+
+  const getCustomerArticlesRequest = useCallback(() => {
+    getRequest(customerArticlesUrl);
+  }, [getRequest]);
+
+  const getCustomerOrderUrl = useCallback(() => {
+    getRequest(customerOrderUrl);
+  }, [getRequest]);
+
+  const postCustomerOrderUrl = useCallback(() => {
+    postRequest(customerOrderUrl);
+  }, [postRequest]);
+
   return {
     data,
     isLoading,
@@ -106,6 +211,20 @@ const useServices = () => {
     getAllSellersRequest,
     updateSellerStatusRequest,
     getAllOrdersRequest,
+    getAdminOrderDetailsRequest,
+    getSellersFinishedOrders,
+    getSellersPendingOrders,
+    getSellersOrderDetailsRequest,
+    getSellerArticleDetailsRequest,
+    getSellersArticlesRequest,
+    updateArticleProductImageRequest,
+    postArticleRequest,
+    updateArticleRequest,
+    getCustomerFinishedOrdersRequest,
+    getCustomerPendingOrdersRequest,
+    getCustomerArticlesRequest,
+    getCustomerOrderUrl,
+    postCustomerOrderUrl,
   };
 };
 

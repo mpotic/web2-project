@@ -5,15 +5,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Button, Container, Typography } from '@mui/material';
+import { Button, Container } from '@mui/material';
 
 import styles from '../../style/centerFormStyles';
 
 import { getDateString } from '../../utils/dateTimeUtils';
-import NoData from '../../components/NoData';
+import NoData from '../NoData';
 
 const Orders = ({ role, data, hasButton, buttonCallback, buttonText }) => {
-  console.log(data);
+  const userRole = role.toLowerCase();
 
   return (
     <>
@@ -36,13 +36,13 @@ const Orders = ({ role, data, hasButton, buttonCallback, buttonText }) => {
                   <TableCell align='center'>Address</TableCell>
                   <TableCell align='center'>Total price</TableCell>
                   <TableCell align='center'>Time placed</TableCell>
-                  {role === 'admin' && (
+                  {userRole === 'admin' && (
                     <TableCell align='center'>Status</TableCell>
                   )}
-                  {role !== 'admin' && (
+                  {userRole !== 'admin' && (
                     <TableCell align='center'>Remaining time</TableCell>
                   )}
-                  {hasButton && <TableCell>Action</TableCell>}
+                  {hasButton && <TableCell align='center'>Action</TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -60,21 +60,22 @@ const Orders = ({ role, data, hasButton, buttonCallback, buttonText }) => {
                     <TableCell align='center'>
                       {getDateString(row.placedTime)}
                     </TableCell>
-                    {role === 'admin' && (
+                    {userRole === 'admin' && (
                       <TableCell align='center'>
-                        {row.remainingTime === 0 ? 'Finished' : 'In progress'}
+                        {row.remainingTime === '00:00:00'
+                          ? 'Finished'
+                          : 'In progress'}
                       </TableCell>
                     )}
-                    {role !== 'admin' && (
-                      <TableCell align='center'>
-                        {getDateString(row.remainingTime)}
-                      </TableCell>
+                    {userRole !== 'admin' && (
+                      <TableCell align='center'>{row.remainingTime}</TableCell>
                     )}
                     {hasButton && (
-                      <TableCell>
+                      <TableCell align='center'>
                         <Button
+                          variant='contained'
                           onClick={(e) => {
-                            buttonCallback(e);
+                            buttonCallback(row.id);
                           }}
                         >
                           {buttonText}
@@ -88,7 +89,7 @@ const Orders = ({ role, data, hasButton, buttonCallback, buttonText }) => {
           </TableContainer>
         </Container>
       )}
-      {!data || (data.length === 0 && <NoData>No orders to show...</NoData>)}
+      {data.length === 0 && <NoData>No orders to show...</NoData>}
     </>
   );
 };

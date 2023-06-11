@@ -7,13 +7,13 @@ import MyBackdrop from '../../components/MyBackdrop';
 import { toasterUtil as toaster } from '../../utils/toasterUtil';
 import UserContext from '../../context/UserContext';
 
-const AllOrders = () => {
+const SellersPendingOrders = () => {
   const {
     data,
     error,
     statusCode,
     isLoading,
-    getAllOrdersRequest,
+    getSellersPendingOrders,
     clearRequest,
   } = useServices();
   const [orders, setOrders] = useState([]);
@@ -21,8 +21,8 @@ const AllOrders = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getAllOrdersRequest();
-  }, [getAllOrdersRequest]);
+    getSellersPendingOrders();
+  }, [getSellersPendingOrders]);
 
   useEffect(() => {
     if (isLoading) {
@@ -36,7 +36,7 @@ const AllOrders = () => {
   }, [isLoading, statusCode, error, data, clearRequest]);
 
   const handleButton = (id) => {
-    navigate('/orders/' + id);
+    navigate('/pending-orders/' + id);
   };
 
   return (
@@ -55,4 +55,4 @@ const AllOrders = () => {
   );
 };
 
-export default AllOrders;
+export default SellersPendingOrders;

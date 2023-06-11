@@ -112,13 +112,13 @@ namespace Business.Services
 			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == seller.Id && x.Name == articleDto.CurrentName);
 			if (article == null)
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, 
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound,
 					$"Article named \"{articleDto.CurrentName}\" doesn't exist among sellers aricles!");
 
 				return operationResult;
 			}
 
-			if (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == seller.Id && x.Name == articleDto.NewName) != null)
+			if (_unitOfWork.ArticleRepository.FindFirst(x => x.SellerId == seller.Id && x.Name == articleDto.NewName && x.Id != article.Id) != null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, $"Seller already has an article named \"{articleDto.NewName}\"!");
 
@@ -155,8 +155,8 @@ namespace Business.Services
 			}
 
 			List<IArticle> articles = _unitOfWork.ArticleRepository.GetAllArticlesFromSeller(seller.Id).ToList<IArticle>();
-			
-			if(articles.Count == 0)
+
+			if (articles.Count == 0)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller has no articles!");
 
@@ -166,6 +166,41 @@ namespace Business.Services
 			List<ArticleInfoDto> articleDtoList = sellerHelper.IncludeImageAndReturnArticlesInfo(articles);
 			ArticleListDto response = new ArticleListDto() { Articles = articleDtoList };
 			operationResult = new ServiceOperationResult(true, response);
+
+			return operationResult;
+		}
+
+		public IServiceOperationResult GetArticleDetails(JwtDto jwtDto, string name)
+		{
+			IServiceOperationResult operationResult;
+
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
+
+				return operationResult;
+			}
+
+			if (((Seller)seller).ApprovalStatus != SellerApprovalStatus.Approved)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller isn't approved!");
+
+				return operationResult;
+			}
+
+			IArticle article = _unitOfWork.ArticleRepository.FindFirst(article => article.Name == name && article.SellerId == seller.Id);
+
+			if (article == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Article not found!");
+
+				return operationResult;
+			}
+
+			var image = sellerHelper.GetArticleProductImage(article);
+			ArticleInfoDto articleDto = new ArticleInfoDto(article.Name, article.Description, article.Quantity, article.Price, image);
+			operationResult = new ServiceOperationResult(true, articleDto);
 
 			return operationResult;
 		}
@@ -196,6 +231,12 @@ namespace Business.Services
 					$"Article named \"{articleDto.Name}\" doesn't exist among sellers aricles!");
 
 				return operationResult;
+			}
+
+			if(articleDto.ProductImage == null)
+			{
+				sellerHelper.DeleteArticleProductImageIfExists(article);
+				article.ProductImage = null;
 			}
 
 			sellerHelper.AddProductImageIfExists(article, articleDto.ProductImage, seller.Id);
@@ -271,6 +312,12 @@ namespace Business.Services
 				Orders = _mapper.Map<List<OrderInfoDto>>(orders)
 			};
 
+			foreach (var orderDto in orderListDto.Orders)
+			{
+				IOrder relatedOrder = orders.Find(x => x.Id == orderDto.Id);
+				orderDto.RemainingTime = orderHelper.CalculateDeliveryRemainingTime(orderDto.PlacedTime, relatedOrder.DeliveryDurationInSeconds);
+			}
+
 			operationResult = new ServiceOperationResult(true, orderListDto);
 
 			return operationResult;
@@ -302,7 +349,53 @@ namespace Business.Services
 				Orders = _mapper.Map<List<OrderInfoDto>>(orders)
 			};
 
+			foreach (var orderDto in orderListDto.Orders)
+			{
+				IOrder relatedOrder = orders.Find(x => x.Id == orderDto.Id);
+				orderDto.RemainingTime = orderHelper.CalculateDeliveryRemainingTime(orderDto.PlacedTime, relatedOrder.DeliveryDurationInSeconds);
+			}
+
 			operationResult = new ServiceOperationResult(true, orderListDto);
+
+			return operationResult;
+		}
+
+		public IServiceOperationResult GetOrderDetails(JwtDto jwtDto, long id)
+		{
+			IServiceOperationResult operationResult;
+
+			ISeller seller = (ISeller)userHelper.FindUserByJwt(jwtDto.Token, _tokenIssuer);
+			if (seller == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "Seller doesn't exist!");
+
+				return operationResult;	
+			}
+
+			IOrder order = _unitOfWork.OrderRepository.GetById(id);
+			if (order == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound,
+					$"Order with the id \"{id}\" has not been found!");
+
+				return operationResult;
+			}
+
+			OrderInfoDto orderDto = _mapper.Map<OrderInfoDto>(order);
+			orderDto.RemainingTime = orderHelper.CalculateDeliveryRemainingTime(orderDto.PlacedTime, order.DeliveryDurationInSeconds);
+
+			List<IItem> items = _unitOfWork.ItemRepository.FindAllIncludeArticles((item) => item.OrderId == id).ToList<IItem>();
+			items.RemoveAll(item => item.Article.SellerId != seller.Id);
+			orderDto.Items = _mapper.Map<List<ItemInfoDto>>(items);
+
+			foreach (var orderItem in orderDto.Items)
+			{
+				IArticle article = items.Find(item => item.ArticleId == orderItem.ArticleId).Article;
+				byte[] image = sellerHelper.GetArticleProductImage(article);
+				orderItem.ArticleImage = image;
+			}
+
+			operationResult = new ServiceOperationResult(true, orderDto);
 
 			return operationResult;
 		}

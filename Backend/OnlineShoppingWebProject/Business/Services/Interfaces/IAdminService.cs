@@ -10,5 +10,7 @@ namespace Business.Services
 		IServiceOperationResult GetAllSellers();
 
 		IServiceOperationResult AllOrders();
+
+		IServiceOperationResult GetOrderDetails(long id);
 	}
 }

@@ -16,5 +16,7 @@ namespace Business.Util.Interfaces
 		List<ArticleInfoDto> IncludeImageAndReturnArticlesInfo(List<IArticle> articles);
 
 		void DeleteArticleProductImageIfExists(IArticle article);
+		
+		byte[] GetArticleProductImage(IArticle article);
 	}
 }

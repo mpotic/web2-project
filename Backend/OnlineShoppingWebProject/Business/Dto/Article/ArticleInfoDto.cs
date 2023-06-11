@@ -2,12 +2,13 @@
 {
 	public class ArticleInfoDto : IDto
 	{
-		public ArticleInfoDto(string name, string description, int quantity, byte[] productImage)
+		public ArticleInfoDto(string name, string description, int quantity, double price, byte[] productImage)
 		{
 			Name = name;
 			Description = description;
 			Quantity = quantity;
-			ActualProductImage = productImage;
+			Price = price;
+			ProductImage = productImage;
 		}
 
 		public string Name { get; set; }
@@ -18,6 +19,6 @@
 
 		public double Price { get; set; }
 
-		public byte[] ActualProductImage { get; set; }
+		public byte[] ProductImage { get; set; }
 	}
 }

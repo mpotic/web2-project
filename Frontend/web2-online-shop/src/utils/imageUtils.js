@@ -8,7 +8,6 @@ const urlToFile = async (imageUrl) => {
     const fileName = `image.${fileExtension}`;
 
     const file = new File([blob], fileName, { type: blob.type });
-    console.log(file);
   } catch (error) {
     console.error(error);
   }

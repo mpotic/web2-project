@@ -12,6 +12,8 @@ namespace Business.Services
 
 		IServiceOperationResult GetAllArticles(JwtDto jwtDto);
 
+		IServiceOperationResult GetArticleDetails(JwtDto jwtDto, string name);
+
 		IServiceOperationResult UpdateArticleProductImage(ArticleProductImageUpdateDto articleDto, JwtDto jwtDto);
 
 		IServiceOperationResult DeleteArticle(string articleName, JwtDto jwtDto);
@@ -19,5 +21,7 @@ namespace Business.Services
 		IServiceOperationResult GetPendingOrders(JwtDto jwtDto);
 
 		IServiceOperationResult GetFinishedOrders(JwtDto jwtDto);
+
+		IServiceOperationResult GetOrderDetails(JwtDto jwtDto, long id);
 	}
 }

@@ -9,7 +9,7 @@ const NoData = ({ children }) => {
           display: 'flex',
           flexDirection: 'column',
           textAlign: 'center',
-          marginTop: '12vh',
+          marginTop: '10vh',
           padding: '20px',
         }}
         elevation={4}

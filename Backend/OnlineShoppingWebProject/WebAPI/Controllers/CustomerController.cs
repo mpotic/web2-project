@@ -137,5 +137,29 @@ namespace WebAPI.Controllers
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
 		}
+
+		[HttpGet("order")]
+		[Authorize(Roles = "Customer")]
+		public IActionResult GetOrderDetails([FromQuery] long id)
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _customerService.GetOrderDetails(id);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
+			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
 	}
 }

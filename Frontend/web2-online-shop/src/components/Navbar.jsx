@@ -16,19 +16,97 @@ const Navbar = () => {
   const underlineColor = teal[300];
 
   const isLoggedin = userContext.isLoggedin;
-  //const isApprovedSeller =
-  //isLoggedin && userContext.role === 'Seller' && userContext.status;
   const role = isLoggedin && userContext.role.toLowerCase();
+  const approvedSeller =
+    role === 'seller' && userContext.status?.toLowerCase() === 'approved';
 
   return (
     <Box>
       <AppBar position='static' sx={{ padding: '4px' }}>
         <Toolbar>
-          <Link component={RouterLink} to='/' sx={{ flexGrow: 1 }}>
-            <IconButton color='primary'>
-              <HomeIcon sx={{ fontSize: '40px' }} />
-            </IconButton>
-          </Link>
+          <Box sx={{ flexGrow: 1 }}>
+            <Link component={RouterLink} to='/'>
+              <IconButton color='primary'>
+                <HomeIcon sx={{ fontSize: '40px' }} />
+              </IconButton>
+            </Link>
+          </Box>
+          {(approvedSeller || role === 'customer') && (
+            <Link
+              underline={
+                location.pathname.includes('pending-orders')
+                  ? 'always'
+                  : 'hover'
+              }
+              component={RouterLink}
+              to='/pending-orders'
+              sx={{
+                fontSize: '22px',
+                marginRight: 1,
+                paddingLeft: '10px',
+                fontWeight: 'bold',
+                textDecorationColor: underlineColor,
+              }}
+            >
+              Pending orders
+            </Link>
+          )}
+          {(approvedSeller || role === 'customer') && (
+            <Link
+              underline={
+                location.pathname.includes('finished-orders')
+                  ? 'always'
+                  : 'hover'
+              }
+              component={RouterLink}
+              to='/finished-orders'
+              sx={{
+                fontSize: '22px',
+                marginRight: 1,
+                paddingLeft: '10px',
+                fontWeight: 'bold',
+                textDecorationColor: underlineColor,
+              }}
+            >
+              Finished orders
+            </Link>
+          )}
+          {(approvedSeller || role === 'customer') && (
+            <Link
+              underline={
+                location.pathname.includes('articles') ? 'always' : 'hover'
+              }
+              component={RouterLink}
+              to='/articles'
+              sx={{
+                fontSize: '22px',
+                marginRight: 1,
+                paddingLeft: '10px',
+                fontWeight: 'bold',
+                textDecorationColor: underlineColor,
+              }}
+            >
+              Articles
+            </Link>
+          )}
+          {approvedSeller && (
+            <Link
+              underline={
+                location.pathname.includes('new-article') ? 'always' : 'hover'
+              }
+              component={RouterLink}
+              to='/new-article'
+              sx={{
+                fontSize: '22px',
+                marginRight: 1,
+                paddingLeft: '10px',
+                fontWeight: 'bold',
+                textDecorationColor: underlineColor,
+              }}
+            >
+              New article
+            </Link>
+          )}
           {role === 'admin' && (
             <Link
               underline={
@@ -50,10 +128,10 @@ const Navbar = () => {
           {role === 'admin' && (
             <Link
               underline={
-                location.pathname.includes('all-orders') ? 'always' : 'hover'
+                location.pathname.includes('orders') ? 'always' : 'hover'
               }
               component={RouterLink}
-              to='/all-orders'
+              to='/orders'
               sx={{
                 fontSize: '22px',
                 marginRight: 1,

@@ -63,6 +63,11 @@ namespace Business.Util
 
 		public void UpdateProductImagePath(IArticle article)
 		{
+			if(article.ProductImage == null)
+			{
+				return;
+			}
+
 			string oldProductImagePath = Path.Combine(Directory.GetCurrentDirectory(), ArticleImageRelativePath, article.ProductImage);
 
 			if (!File.Exists(oldProductImagePath))
@@ -86,15 +91,20 @@ namespace Business.Util
 			foreach (IArticle article in articles)
 			{
 				byte[] productImage = GetArticleProductImage(article);
-				articleDtoList.Add(new ArticleInfoDto(article.Name, article.Description, article.Quantity, productImage));
+				articleDtoList.Add(new ArticleInfoDto(article.Name, article.Description, article.Quantity, article.Price, productImage));
 			}
 
 			return articleDtoList;
 		}
 
-		private byte[] GetArticleProductImage(IArticle article)
+		public byte[] GetArticleProductImage(IArticle article)
 		{
 			string productImageName = article.ProductImage;
+			if(productImageName == null)
+			{
+				return null;
+			}
+
 			string productImagePath = Path.Combine(Directory.GetCurrentDirectory(), ArticleImageRelativePath, productImageName);
 
 			if (!File.Exists(productImagePath))

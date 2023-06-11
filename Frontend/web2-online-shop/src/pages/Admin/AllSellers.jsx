@@ -109,7 +109,7 @@ const AllSellers = () => {
                       <img
                         src={row.sellerProfileImage}
                         alt=''
-                        style={{ maxWidth: '100px', maxHeight: '100px' }}
+                        style={{ maxWidth: '120px', maxHeight: '120px' }}
                       />
                     </Box>
                   </TableCell>

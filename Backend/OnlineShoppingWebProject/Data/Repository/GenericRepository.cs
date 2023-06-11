@@ -46,7 +46,7 @@ namespace Data.Repository
 			return result;
 		}
 
-		public T GetById(int id)
+		public T GetById(long id)
 		{
 			var result = _context.Set<T>().Find(id);
 			

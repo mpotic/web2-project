@@ -6,7 +6,12 @@ import { Typography, Container, Paper, Link } from '@mui/material';
 import UserContext from '../context/UserContext';
 
 const Home = () => {
-  const { isLoggedin, username } = useContext(UserContext);
+  const { username, ...userContext } = useContext(UserContext);
+
+  const isLoggedin = userContext.isLoggedin;
+  const role = isLoggedin && userContext.role.toLowerCase();
+  const unApprovedSeller =
+    role === 'seller' && userContext.status?.toLowerCase() !== 'approved';
 
   return (
     <Container sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -57,6 +62,11 @@ const Home = () => {
         {isLoggedin && (
           <Typography variant='h3' color='primary'>
             Welcome {username}!
+          </Typography>
+        )}
+        {unApprovedSeller && (
+          <Typography variant='h5' color='secondary'>
+            Your account has not been approved!
           </Typography>
         )}
       </Paper>

@@ -231,5 +231,36 @@ namespace Business.Services
 
 			return operationResult;
 		}
+
+		public IServiceOperationResult GetOrderDetails(long id)
+		{
+			IServiceOperationResult operationResult;
+
+			IOrder order = _unitOfWork.OrderRepository.GetById(id);
+			if (order == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound,
+					$"Order with the id \"{id}\" has not been found!");
+
+				return operationResult;
+			}
+
+			OrderInfoDto orderDto = _mapper.Map<OrderInfoDto>(order);
+			orderDto.RemainingTime = orderHelper.CalculateDeliveryRemainingTime(orderDto.PlacedTime, order.DeliveryDurationInSeconds);
+
+			List<IItem> items = _unitOfWork.ItemRepository.FindAllIncludeArticles((item) => item.OrderId == id).ToList<IItem>();
+			orderDto.Items = _mapper.Map<List<ItemInfoDto>>(items);
+
+			foreach (var orderItem in orderDto.Items)
+			{
+				IArticle article = items.Find(item => item.ArticleId == orderItem.ArticleId).Article;
+				byte[] image = sellerHelper.GetArticleProductImage(article);
+				orderItem.ArticleImage = image;
+			}
+
+			operationResult = new ServiceOperationResult(true, orderDto);
+
+			return operationResult;
+		}
 	}
 }

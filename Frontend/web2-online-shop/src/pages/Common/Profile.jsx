@@ -7,6 +7,7 @@ import {
   TextField,
   Typography,
   Box,
+  FormControl,
 } from '@mui/material';
 
 import Calendar from '../../components/Calendar';
@@ -20,7 +21,7 @@ import UploadButton from '../../components/UploadButton';
 import UserContext from '../../context/UserContext';
 
 const Profile = () => {
-  const { role } = useContext(UserContext);
+  const { role, status } = useContext(UserContext);
   const [basicUserInfo, setBasicUserInfo] = useState(basicUserInit);
   const [passwordInfo, setPasswordInfo] = useState(passwordInfoInit);
   const [profileImage, setProfileImage] = useState(null);
@@ -195,13 +196,28 @@ const Profile = () => {
             sx={{ ...styles.paper, width: '50%' }}
             elevation={4}
           >
-            <Typography sx={{ fontSize: '24px' }}>
-              {role.toUpperCase()}
-            </Typography>
+            <Box
+              sx={{ ...styles.rowBox, justifyContent: 'center', gap: '0px' }}
+            >
+              <Typography variant='h5'>{role.toUpperCase()}</Typography>
+              {role.toLowerCase() === 'seller' &&
+                status?.toLowerCase() !== 'approved' && (
+                  <Typography variant='h5' color='secondary'>
+                    (Not approved!)
+                  </Typography>
+                )}
+              {role.toLowerCase() === 'seller' &&
+                status?.toLowerCase() === 'approved' && (
+                  <Typography variant='h5' color='primary'>
+                    (Approved)
+                  </Typography>
+                )}
+            </Box>
             <Box sx={styles.rowBox}>
               <TextField
                 placeholder='Username'
                 id='username'
+                label='Username'
                 value={basicUserInfo.username}
                 error={validity.username.error}
                 helperText={validity.username.helper}
@@ -213,26 +229,31 @@ const Profile = () => {
                 }}
                 required
               />
-              <TextField
-                placeholder='Email'
-                id='email'
-                value={basicUserInfo.email}
-                error={validity.email.error}
-                helperText={validity.email.helper}
-                sx={styles.textField}
-                type='email'
-                onChange={(e) => {
-                  setBasicUserInfo((old) => {
-                    return { ...old, email: e.target.value };
-                  });
-                }}
-                required
-              />
+              <FormControl sx={{ width: '50%', margin: '0px' }}>
+                <TextField
+                  placeholder='Email'
+                  id='email'
+                  label='Email'
+                  disabled
+                  value={basicUserInfo.email}
+                  sx={{
+                    ...styles.textField,
+                    width: '100%',
+                    // '.MuiInputBase-input.Mui-disabled': {
+                    //   WebkitTextFillColor: 'white',
+                    // },
+                  }}
+                  type='email'
+                  aria-readonly='true'
+                  variant='outlined'
+                />
+              </FormControl>
             </Box>
             <Box sx={styles.rowBox}>
               <TextField
                 placeholder='Firstname'
                 id='firstname'
+                label='Firstname'
                 value={basicUserInfo.firstname}
                 error={validity.firstname.error}
                 helperText={validity.firstname.helper}
@@ -247,6 +268,7 @@ const Profile = () => {
               <TextField
                 placeholder='Lastname'
                 id='lastname'
+                label='Lastname'
                 value={basicUserInfo.lastname}
                 error={validity.lastname.error}
                 helperText={validity.lastname.helper}
@@ -263,6 +285,7 @@ const Profile = () => {
               <TextField
                 placeholder='Address'
                 id='address'
+                label='Address'
                 value={basicUserInfo.address}
                 error={validity.address.error}
                 helperText={validity.address.helper}

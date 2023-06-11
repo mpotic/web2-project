@@ -87,7 +87,55 @@ namespace WebAPI.Controllers
 
 				return Ok(operationResult.Dto);
 			}
+			catch (Exception)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpGet("article")]
+		[Authorize(Roles = "Seller")]
+		public IActionResult GetArticleDetails([FromQuery]string name)
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _sellerService.GetArticleDetails(jwtDto, name);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
+			}
 			catch (Exception e)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpGet("order")]
+		[Authorize(Roles = "Seller")]
+		public IActionResult GetOrderDetails([FromQuery] long id)
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+				JwtDto jwtDto = new JwtDto(token);
+
+				IServiceOperationResult operationResult = _sellerService.GetOrderDetails(jwtDto, id);
+
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
+			}
+			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
@@ -111,7 +159,7 @@ namespace WebAPI.Controllers
 				
 				return Ok();
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
@@ -135,7 +183,7 @@ namespace WebAPI.Controllers
 
 				return Ok();
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}
@@ -159,7 +207,7 @@ namespace WebAPI.Controllers
 
 				return Ok();
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
 			}

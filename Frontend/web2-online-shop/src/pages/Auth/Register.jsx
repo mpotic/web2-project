@@ -42,11 +42,8 @@ const Register = () => {
       }
     }
 
-    console.log(user.current.profileImage);
     registerRequest(user.current);
   };
-
-  console.log(user.current.birthdate);
 
   useEffect(() => {
     if (isLoading) {
@@ -193,7 +190,6 @@ const Register = () => {
               uploadCallback={(file) => {
                 user.current.profileImage = file;
                 setIsAddedImage(!!file);
-                console.log(file);
               }}
               doubleClickCallback={(file) => {
                 user.current.profileImage = file;

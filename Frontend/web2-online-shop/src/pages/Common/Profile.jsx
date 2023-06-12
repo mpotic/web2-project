@@ -179,8 +179,12 @@ const Profile = () => {
               buttonText='Reupload'
               direction='column'
               alternativeToNoImage='No profile image...'
-              doubleClickCallback={(data) => {
-                setProfileImage(data);
+              doubleClickCallback={() => {
+                setProfileImage(null);
+                setUpdatingProfileImage(true);
+                updateProfileImageRequest({
+                  profileImage: null,
+                });
               }}
               uploadCallback={(file) => {
                 setProfileImage(file);
@@ -199,16 +203,22 @@ const Profile = () => {
             <Box
               sx={{ ...styles.rowBox, justifyContent: 'center', gap: '0px' }}
             >
-              <Typography variant='h5'>{role.toUpperCase()}</Typography>
+              <Typography variant='h5' paddingBottom='15px'>
+                {role.toUpperCase()}
+              </Typography>
               {role.toLowerCase() === 'seller' &&
                 status?.toLowerCase() !== 'approved' && (
-                  <Typography variant='h5' color='secondary'>
+                  <Typography
+                    variant='h5'
+                    color='secondary'
+                    paddingBottom='15px'
+                  >
                     (Not approved!)
                   </Typography>
                 )}
               {role.toLowerCase() === 'seller' &&
                 status?.toLowerCase() === 'approved' && (
-                  <Typography variant='h5' color='primary'>
+                  <Typography variant='h5' color='primary' paddingBottom='15px'>
                     (Approved)
                   </Typography>
                 )}
@@ -333,6 +343,7 @@ const Profile = () => {
           <TextField
             placeholder='Old password'
             id='OldPassword'
+            type='password'
             sx={{ width: '100%' }}
             value={passwordInfo.oldPassword}
             error={passwordValidity.oldPassword.error}
@@ -347,6 +358,7 @@ const Profile = () => {
           <TextField
             placeholder='New password'
             id='newPassword'
+            type='password'
             sx={{ width: '100%' }}
             value={passwordInfo.newPassword}
             error={passwordValidity.newPassword.error}
@@ -361,6 +373,7 @@ const Profile = () => {
           <TextField
             placeholder='Repeat new password'
             id='repeatNewPassword'
+            type='password'
             sx={{ width: '100%' }}
             value={passwordInfo.repeatNewPassword}
             error={passwordValidity.repeatNewPassword.error}

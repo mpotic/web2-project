@@ -22,21 +22,30 @@ import SellersFinishedOrders from './pages/Seller/SellersFinishedOrders';
 import SellersPendingOrders from './pages/Seller/SellersPendingOrders';
 import ArticleDetails from './components/Articles/ArticleDetails';
 import NewArticle from './pages/Seller/NewArticle';
-import BuyersArticles from './pages/Buyer/BuyersArticles';
-import BuyersFinishedOrders from './pages/Buyer/BuyersFinishedOrders';
-import BuyersPendingOrders from './pages/Buyer/BuyersPendingOrders';
+import CustomerPendingOrders from './pages/Customer/CustomerPendingOrders';
+import CustomerFinishedOrders from './pages/Customer/CustomerFinishedOrders';
+import CustomerArticles from './pages/Customer/CustomerArticles';
+import OrderContext from './context/OrderContext';
+import Order from './pages/Customer/Order';
 
 function App() {
   const { loadUser, ...userContext } = useContext(UserContext);
-
-  useEffect(() => {
-    loadUser();
-  }, [loadUser]);
+  const { removeOrder, ...orderContext } = useContext(OrderContext);
 
   const isLoggedin = userContext.isLoggedin;
   const role = isLoggedin && userContext.role.toLowerCase();
   const approvedSeller =
     role === 'seller' && userContext.status?.toLowerCase() === 'approved';
+
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
+
+  useEffect(() => {
+    if (!isLoggedin || role !== 'customer') {
+      removeOrder();
+    }
+  }, [isLoggedin, removeOrder, role]);
 
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
@@ -81,13 +90,22 @@ function App() {
           <Route path='/new-article' element={<NewArticle />} />
         )}
         {role === 'customer' && (
-          <Route path='/articles' element={<BuyersArticles />} />
+          <Route path='/articles' element={<CustomerArticles />} />
         )}
         {role === 'customer' && (
-          <Route path='/finished-orders' element={<BuyersFinishedOrders />} />
+          <Route path='/finished-orders' element={<CustomerFinishedOrders />} />
         )}
         {role === 'customer' && (
-          <Route path='/pending-orders' element={<BuyersPendingOrders />} />
+          <Route path='/finished-orders/:id' element={<OrderDetails />} />
+        )}
+        {role === 'customer' && (
+          <Route path='/pending-orders' element={<CustomerPendingOrders />} />
+        )}
+        {role === 'customer' && (
+          <Route path='/pending-orders/:id' element={<OrderDetails />} />
+        )}
+        {role === 'customer' && orderContext.hasItems() && (
+          <Route path='/order' element={<Order />} />
         )}
         <Route path='*' element={<NotFound />} />
       </Routes>

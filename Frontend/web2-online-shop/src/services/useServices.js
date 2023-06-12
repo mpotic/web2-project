@@ -17,8 +17,8 @@ const getAllSellersUrl =
 const updateSellerStatusUrl =
   baseUrl + process.env.REACT_APP_API_UPDATE_APPROVAL_STATUS_URL;
 const allOrdersUrl = baseUrl + process.env.REACT_APP_API_ALL_ORDERS_URL;
-const adminOrderDetailsUrl =
-  baseUrl + process.env.REACT_APP_API_ORDER_DETAILS_URL;
+// const adminOrderDetailsUrl =
+//   baseUrl + process.env.REACT_APP_API_ADMIN_ORDER_DETAILS_URL;
 const getSellersFinishedOrdersUrl =
   baseUrl + process.env.REACT_APP_API_SELLER_FINISHED_ORDERS_URL;
 const getSellersPendingOrdersUrl =
@@ -33,8 +33,8 @@ const updateArticleUrl =
   baseUrl + process.env.REACT_APP_API_SELLER_UPDATE_ARTICLE_URL;
 const updateArticleProductImageUrl =
   baseUrl + process.env.REACT_APP_API_SELLER_UPDATE_ARTICLE_IMAGE_URL;
-// const deleteArticleUrl =
-//   baseUrl + process.env.REACT_APP_API_SELLER_DELETE_ARTICLE_URL;
+const deleteArticleUrl =
+  baseUrl + process.env.REACT_APP_API_SELLER_DELETE_ARTICLE_URL;
 const postArticleUrl =
   baseUrl + process.env.REACT_APP_API_SELLER_POST_ARTICLE_URL;
 const customerFinishedOrdersUrl =
@@ -44,10 +44,11 @@ const customerPendingOrdersUrl =
 const customerArticlesUrl =
   baseUrl + process.env.REACT_APP_API_CUSTOMER_ARTICLES_URL;
 const customerOrderUrl = baseUrl + process.env.REACT_APP_API_CUSTOMER_ORDER_URL;
-// const customerDeleteOrderUrl =
-//   baseUrl + process.env.REACT_APP_API_CUSTOMER_DELETE_ORDER;
+const customerDeleteOrderUrl =
+  baseUrl + process.env.REACT_APP_API_CUSTOMER_DELETE_ORDER;
 const customerPostOrderUrl =
   baseUrl + process.env.REACT_APP_API_CUSTOMER_POST_ORDER_URL;
+const googleLoginUrl = baseUrl + process.env.REACT_APP_API_GOOGLE_LOGIN;
 
 const useServices = () => {
   const {
@@ -60,6 +61,7 @@ const useServices = () => {
     postRequestFormData,
     putRequest,
     putRequestFormData,
+    deleteRequest,
     resetHttp,
   } = useHttp();
 
@@ -123,7 +125,7 @@ const useServices = () => {
 
   const getAdminOrderDetailsRequest = useCallback(
     (id) => {
-      getRequest(adminOrderDetailsUrl + '?id=' + id);
+      getRequest(baseUrl + '/admin/order' + '?id=' + id);
     },
     [getRequest]
   );
@@ -156,6 +158,7 @@ const useServices = () => {
 
   const updateArticleRequest = useCallback(
     (article) => {
+      console.log(article, updateArticleUrl);
       putRequest(updateArticleUrl, article);
     },
     [putRequest]
@@ -187,12 +190,36 @@ const useServices = () => {
     getRequest(customerArticlesUrl);
   }, [getRequest]);
 
-  const getCustomerOrderUrl = useCallback(() => {
-    getRequest(customerOrderUrl);
-  }, [getRequest]);
+  const getCustomerOrderDetailsRequest = useCallback(
+    (id) => {
+      getRequest(customerOrderUrl + '?id=' + id);
+    },
+    [getRequest]
+  );
 
-  const postCustomerOrderUrl = useCallback(() => {
-    postRequest(customerOrderUrl);
+  const postCustomerOrderRequest = useCallback(
+    (order) => {
+      postRequest(customerPostOrderUrl, order);
+    },
+    [postRequest]
+  );
+
+  const deleteCustomerOrderRequest = useCallback(
+    (orderId) => {
+      deleteRequest(customerDeleteOrderUrl + '?orderId=' + orderId);
+    },
+    [deleteRequest]
+  );
+
+  const deleteArticleRequest = useCallback(
+    (name) => {
+      deleteRequest(deleteArticleUrl + '?name=' + name);
+    },
+    [deleteRequest]
+  );
+
+  const googleLogin = useCallback(() => {
+    postRequest(googleLoginUrl);
   }, [postRequest]);
 
   return {
@@ -223,8 +250,11 @@ const useServices = () => {
     getCustomerFinishedOrdersRequest,
     getCustomerPendingOrdersRequest,
     getCustomerArticlesRequest,
-    getCustomerOrderUrl,
-    postCustomerOrderUrl,
+    getCustomerOrderDetailsRequest,
+    postCustomerOrderRequest,
+    deleteCustomerOrderRequest,
+    googleLogin,
+    deleteArticleRequest,
   };
 };
 

@@ -115,9 +115,16 @@ namespace Business.Util
 
 		public bool UploadProfileImage(IUser user, IFormFile profileImage)
 		{
+			string path = Path.Combine(ProfileImagesRelativePath, user.ProfileImage);
+
+			if (File.Exists(path))
+			{
+				File.Delete(path);
+			}
+
 			if (profileImage == null)
 			{
-				return false;
+				return true;
 			}
 
 			string profileImageDir = Path.Combine(Directory.GetCurrentDirectory(), ProfileImagesRelativePath);

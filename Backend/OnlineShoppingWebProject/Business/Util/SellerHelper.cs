@@ -59,6 +59,11 @@ namespace Business.Util
 			{
 				article.Quantity = articleDto.Quantity;
 			}
+
+			if (articleDto.Price >= 1)
+			{
+				article.Price = articleDto.Price;
+			}
 		}
 
 		public void UpdateProductImagePath(IArticle article)
@@ -91,7 +96,7 @@ namespace Business.Util
 			foreach (IArticle article in articles)
 			{
 				byte[] productImage = GetArticleProductImage(article);
-				articleDtoList.Add(new ArticleInfoDto(article.Name, article.Description, article.Quantity, article.Price, productImage));
+				articleDtoList.Add(new ArticleInfoDto(article.Id, article.Name, article.Description, article.Quantity, article.Price, productImage));
 			}
 
 			return articleDtoList;
@@ -119,6 +124,11 @@ namespace Business.Util
 
 		public void DeleteArticleProductImageIfExists(IArticle article)
 		{
+			if(article.ProductImage == null)
+			{
+				return;
+			}
+
 			string productImageName = article.ProductImage;
 			string productImagePath = Path.Combine(Directory.GetCurrentDirectory(), ArticleImageRelativePath, productImageName);
 

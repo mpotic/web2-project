@@ -6,6 +6,9 @@ using Business.TokenHelper;
 using Business.Util;
 using Data.Models;
 using Data.UnitOfWork;
+using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
 
 namespace Business.Services
 {
@@ -114,6 +117,56 @@ namespace Business.Services
 
 			return operationResult;
 		}
+
+		public IServiceOperationResult GoogleLogin(GoogleJsonWebSignature.Payload payload)
+		{
+			IServiceOperationResult operationResult;
+
+			Customer customer = FromGoogleToken(payload);
+
+			_unitOfWork.CustomerRepository.Add(customer);
+			_unitOfWork.Commit();
+
+			operationResult = new ServiceOperationResult(true);
+
+			return operationResult;
+		}
+
+		public Customer FromGoogleToken(GoogleJsonWebSignature.Payload payload)
+		{
+			var user = new Customer
+			{
+				Id = long.Parse(payload.Subject),
+				Firstname = payload.GivenName,
+				Lastname = payload.FamilyName,
+				Username = payload.Name,
+				Email = payload.Email,
+			};
+
+			userHelper.UploadProfileImage(user, DownloadProfileImage(payload.Picture));
+
+			return user;
+		}
+
+		private IFormFile DownloadProfileImage(string imageUrl)
+		{
+			using (var httpClient = new HttpClient())
+			{
+				var response = httpClient.GetAsync(imageUrl).Result;
+
+				if (response.IsSuccessStatusCode)
+				{
+					var stream = response.Content.ReadAsStreamAsync().Result;
+
+					var formFile = new FormFile(stream, 0, stream.Length, "profileImage", "profile.jpg");
+
+					return formFile;
+				}
+			}
+
+			return null;
+		}
+
 
 		private IUser CreateUserAndAddToRepository(RegisterUserDto registerDto)
 		{

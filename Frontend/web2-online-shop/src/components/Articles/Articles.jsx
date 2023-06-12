@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -10,8 +12,11 @@ import { Button, Container, Box } from '@mui/material';
 import styles from '../../style/centerFormStyles';
 
 import NoData from '../NoData';
+import OrderContext from '../../context/OrderContext';
 
 const Articles = ({ data, hasButton, buttonCallback, buttonText }) => {
+  const orderContext = useContext(OrderContext);
+
   return (
     <>
       {data && data.length > 0 && (
@@ -28,11 +33,24 @@ const Articles = ({ data, hasButton, buttonCallback, buttonText }) => {
             >
               <TableHead>
                 <TableRow>
-                  <TableCell align='center'>Product image</TableCell>
-                  <TableCell align='center'>Name</TableCell>
-                  <TableCell align='center'>Description</TableCell>
-                  <TableCell align='center'>Quantity</TableCell>
-                  <TableCell align='center'>Price</TableCell>
+                  <TableCell align='center' sx={{ fontSize: '22px' }}>
+                    Product image
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '22px' }}>
+                    Id
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '22px' }}>
+                    Name
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '22px' }}>
+                    Description
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '22px' }}>
+                    Quantity
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '22px' }}>
+                    Price
+                  </TableCell>
                   {hasButton && <TableCell align='center'>Action</TableCell>}
                 </TableRow>
               </TableHead>
@@ -53,25 +71,39 @@ const Articles = ({ data, hasButton, buttonCallback, buttonText }) => {
                         <img
                           src={row.productImage}
                           alt=''
-                          style={{ maxWidth: '120px', maxHeight: '120px' }}
+                          style={{ maxWidth: '140px', maxHeight: '140px' }}
                         />
                       </Box>
                     </TableCell>
-                    <TableCell align='center'>{row.name}</TableCell>
-                    <TableCell align='center'>{row.description}</TableCell>
-                    <TableCell align='center'>{row.quantity}</TableCell>
-                    <TableCell align='center'>{row.price}</TableCell>
-                    {hasButton && (
+                    <TableCell align='center' sx={{ fontSize: '18px' }}>
+                      {row.id}
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: '18px' }}>
+                      {row.name}
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: '18px' }}>
+                      {row.description}
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: '18px' }}>
+                      {row.quantity}
+                    </TableCell>
+                    <TableCell align='center' sx={{ fontSize: '18px' }}>
+                      {row.price}
+                    </TableCell>
+                    {hasButton && !orderContext.hasArticleWithId(row.id) && (
                       <TableCell align='center'>
                         <Button
                           variant='contained'
                           onClick={(e) => {
-                            buttonCallback(row.name);
+                            buttonCallback(row);
                           }}
                         >
                           {buttonText}
                         </Button>
                       </TableCell>
+                    )}
+                    {hasButton && orderContext.hasArticleWithId(row.id) && (
+                      <TableCell align='center'>Article added</TableCell>
                     )}
                   </TableRow>
                 ))}

@@ -1,58 +1,61 @@
 import { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-import Orders from '../../components/Orders/Orders';
 import useServices from '../../services/useServices';
 import MyBackdrop from '../../components/MyBackdrop';
 import { toasterUtil as toaster } from '../../utils/toasterUtil';
 import UserContext from '../../context/UserContext';
+import Articles from '../../components/Articles/Articles';
+import OrderContext from '../../context/OrderContext';
 
-const BuyersFinishedOrders = () => {
+const SellersArticles = () => {
   const {
     data,
     error,
     statusCode,
     isLoading,
-    getSellersFinishedOrders,
+    getCustomerArticlesRequest,
     clearRequest,
   } = useServices();
-  const [orders, setOrders] = useState([]);
+  const [articles, setArticles] = useState([]);
   const { role } = useContext(UserContext);
-  const navigate = useNavigate();
+  const orderContext = useContext(OrderContext);
 
   useEffect(() => {
-    getSellersFinishedOrders();
-  }, [getSellersFinishedOrders]);
+    getCustomerArticlesRequest();
+  }, [getCustomerArticlesRequest]);
 
   useEffect(() => {
     if (isLoading) {
       return;
     } else if (statusCode === 200 && !error && data) {
-      setOrders(data.orders);
+      data?.articles.forEach((item) => {
+        item.productImage = 'data:image/*;base64,' + item.productImage;
+      });
+      setArticles(data.articles);
       clearRequest();
     } else if (statusCode !== 200 && error) {
       toaster.handleError(statusCode, error);
     }
   }, [isLoading, statusCode, error, data, clearRequest]);
 
-  const handleButton = (id) => {
-    navigate('/finished-orders/' + id);
+  const handleButton = (article) => {
+    orderContext.addItemToOrder(article, 1);
   };
 
   return (
     <>
       {!isLoading && (
-        <Orders
-          data={orders}
+        <Articles
+          data={articles}
           role={role}
           hasButton={true}
           buttonCallback={handleButton}
-          buttonText='Details'
-        ></Orders>
+          buttonText='Add to order'
+        ></Articles>
       )}
       <MyBackdrop open={isLoading}></MyBackdrop>
     </>
   );
 };
 
-export default BuyersFinishedOrders;
+export default SellersArticles;

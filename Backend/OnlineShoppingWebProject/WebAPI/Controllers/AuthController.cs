@@ -1,10 +1,12 @@
 ﻿using Business.Dto.Auth;
 using Business.Result;
 using Business.Services;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
 {
@@ -63,6 +65,28 @@ namespace WebAPI.Controllers
 			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError);
+			}
+		}
+
+		[HttpPost("google-login")]
+		public async Task<IActionResult> GoogleLogin(string idToken)
+		{
+			try
+			{
+				GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+				_userAuthService.GoogleLogin(payload);
+
+				return Ok();
+			}
+			catch (InvalidJwtException ex)
+			{
+				// Handle invalid token exception
+				return Unauthorized(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				// Handle other exceptions
+				return StatusCode(500, ex.Message);
 			}
 		}
 	}

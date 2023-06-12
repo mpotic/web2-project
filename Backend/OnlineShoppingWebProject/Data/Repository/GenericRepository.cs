@@ -10,6 +10,8 @@ namespace Data.Repository
 	{
 		protected readonly OnlineShopDbContext _context;
 
+		private readonly object balanceLock = new object();
+
 		public GenericRepository(OnlineShopDbContext context)
 		{
 			_context = context;
@@ -17,55 +19,83 @@ namespace Data.Repository
 
 		public void Add(T entity)
 		{
-			_context.Set<T>().Add(entity);
+			lock (balanceLock)
+			{
+				_context.Set<T>().Add(entity);
+
+			}
 		}
 
 		public void AddRange(IEnumerable<T> entities)
 		{
-			_context.Set<T>().AddRange(entities);
+			lock (balanceLock)
+			{
+				_context.Set<T>().AddRange(entities);
+			}
 		}
 
 		public IEnumerable<T> FindAll(Expression<Func<T, bool>> expression)
 		{
-			var result = _context.Set<T>().Where(expression).ToList();
+			lock (balanceLock)
+			{
+				var result = _context.Set<T>().Where(expression).ToList();
 
-			return result;
+				return result;
+			}
 		}
 
 		public T FindFirst(Expression<Func<T, bool>> expression)
 		{
-			var result = _context.Set<T>().Where(expression).FirstOrDefault();
+			lock (balanceLock)
+			{
+				var result = _context.Set<T>().Where(expression).FirstOrDefault();
 
-			return result;
+				return result;
+			}
 		}
 
 		public IEnumerable<T> GetAll()
 		{
-			var result = _context.Set<T>().ToList();
+			lock (balanceLock)
+			{
+				var result = _context.Set<T>().ToList();
 
-			return result;
+				return result;
+			}
 		}
 
 		public T GetById(long id)
 		{
-			var result = _context.Set<T>().Find(id);
-			
-			return result;
+			lock (balanceLock)
+			{
+				var result = _context.Set<T>().Find(id);
+
+				return result;
+			}
 		}
 
 		public void Remove(T entity)
 		{
-			_context.Set<T>().Remove(entity);
+			lock (balanceLock)
+			{
+				_context.Set<T>().Remove(entity);
+			}
 		}
 
 		public void RemoveRange(IEnumerable<T> entities)
 		{
-			_context.Set<T>().RemoveRange(entities);
+			lock (balanceLock)
+			{
+				_context.Set<T>().RemoveRange(entities);
+			}
 		}
 
 		public void Update(T entity)
 		{
-			_context.Set<T>().Update(entity);
+			lock (balanceLock)
+			{
+				_context.Set<T>().Update(entity);
+			}
 		}
 	}
 }

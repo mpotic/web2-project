@@ -1,5 +1,6 @@
 ﻿using Business.Dto.Auth;
 using Business.Result;
+using Google.Apis.Auth;
 
 namespace Business.Services
 {
@@ -8,5 +9,7 @@ namespace Business.Services
 		IServiceOperationResult LoginUser(LoginUserDto loginDto);
 
 		IServiceOperationResult RegisterUser(RegisterUserDto registerDto);
+
+		IServiceOperationResult GoogleLogin(GoogleJsonWebSignature.Payload payload);
 	}
 }

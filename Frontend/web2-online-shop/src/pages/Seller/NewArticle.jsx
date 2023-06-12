@@ -136,12 +136,14 @@ const NewArticle = () => {
               label='Quantity'
               type='number'
               value={article?.quantity}
-              error={validity.quantity.error}
-              helperText={validity.quantity.helper}
               sx={{ ...styles.textField, width: '100%' }}
               onChange={(e) => {
+                var quantity = e.target.value;
+                if (quantity < 1) {
+                  quantity = 1;
+                }
                 setArticle((old) => {
-                  return { ...old, quantity: e.target.value };
+                  return { ...old, quantity: quantity };
                 });
               }}
             />
@@ -152,12 +154,14 @@ const NewArticle = () => {
               label='Price'
               type='number'
               value={article?.price}
-              error={validity.price.error}
-              helperText={validity.price.helper}
               sx={{ ...styles.textField, width: '100%' }}
               onChange={(e) => {
                 setArticle((old) => {
-                  return { ...old, price: e.target.value };
+                  var price = e.target.value;
+                  if (price < 1) {
+                    price = 1;
+                  }
+                  return { ...old, price: price };
                 });
               }}
             />
@@ -188,21 +192,13 @@ const fieldValidity = {
     error: false,
     helper: '',
   },
-  quantity: {
-    error: false,
-    helper: '',
-  },
-  price: {
-    error: false,
-    helper: '',
-  },
 };
 
 const articleInit = {
   name: '',
   description: '',
   quantity: 0,
-  price: 0,
+  price: 1,
 };
 
 const validateFields = (article) => {

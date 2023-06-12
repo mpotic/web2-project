@@ -71,6 +71,12 @@ namespace Business.Services
 				Orders = _mapper.Map<List<OrderInfoDto>>(orders)
 			};
 
+			foreach (var orderDto in orderListDto.Orders)
+			{
+				IOrder relatedOrder = orders.Find(x => x.Id == orderDto.Id);
+				orderDto.RemainingTime = orderHelper.CalculateDeliveryRemainingTime(orderDto.PlacedTime, relatedOrder.DeliveryDurationInSeconds);
+			}
+
 			operationResult = new ServiceOperationResult(true, orderListDto);
 
 			return operationResult;
@@ -119,9 +125,9 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			if (validationHelper.AreStringPropsNullOrEmpty(orderDto))
+			if (orderDto.Address.Trim().Length < 5)
 			{
-				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest, "Order data is not properly filled in!");
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.BadRequest, "Address is invalid!");
 
 				return operationResult;
 			}

@@ -24,6 +24,7 @@ const OrderDetails = () => {
   const {
     getAdminOrderDetailsRequest,
     getSellersOrderDetailsRequest,
+    getCustomerOrderDetailsRequest,
     clearRequest,
     isLoading,
     error,
@@ -35,7 +36,14 @@ const OrderDetails = () => {
   useEffect(() => {
     role.toLowerCase() === 'admin' && getAdminOrderDetailsRequest(id);
     role.toLowerCase() === 'seller' && getSellersOrderDetailsRequest(id);
-  }, [getAdminOrderDetailsRequest, getSellersOrderDetailsRequest, id, role]);
+    role.toLowerCase() === 'customer' && getCustomerOrderDetailsRequest(id);
+  }, [
+    getAdminOrderDetailsRequest,
+    getSellersOrderDetailsRequest,
+    getCustomerOrderDetailsRequest,
+    id,
+    role,
+  ]);
 
   useEffect(() => {
     if (isLoading) {
@@ -63,14 +71,18 @@ const OrderDetails = () => {
                 id='comment'
                 label='Comment'
                 value={order?.comment}
-                sx={{ ...styles.textField, width: '100%' }}
                 multiline
-                inputProps={{
-                  readOnly: true,
-                  style: {
-                    userSelect: 'none',
+                rows={3}
+                disabled
+                sx={{
+                  ...styles.textField,
+                  width: '100%',
+                  '.MuiInputBase-input.Mui-disabled': {
+                    WebkitTextFillColor: 'white',
                   },
                 }}
+                aria-readonly='true'
+                variant='outlined'
               />
             </Box>
             <Box sx={styles.rowBox}>
@@ -78,25 +90,31 @@ const OrderDetails = () => {
                 id='address'
                 label='Address'
                 value={order?.address}
-                sx={styles.textField}
-                inputProps={{
-                  readOnly: true,
-                  style: {
-                    userSelect: 'none',
+                disabled
+                sx={{
+                  ...styles.textField,
+                  width: '100%',
+                  '.MuiInputBase-input.Mui-disabled': {
+                    WebkitTextFillColor: 'white',
                   },
                 }}
+                aria-readonly='true'
+                variant='outlined'
               />
               <TextField
                 id='totalPrice'
                 label='Total price'
                 value={order?.totalPrice}
-                sx={styles.textField}
-                inputProps={{
-                  readOnly: true,
-                  style: {
-                    userSelect: 'none',
+                disabled
+                sx={{
+                  ...styles.textField,
+                  width: '100%',
+                  '.MuiInputBase-input.Mui-disabled': {
+                    WebkitTextFillColor: 'white',
                   },
                 }}
+                aria-readonly='true'
+                variant='outlined'
               />
             </Box>
             <Box sx={styles.rowBox}>
@@ -104,25 +122,31 @@ const OrderDetails = () => {
                 id='placedTime'
                 label='Placed time'
                 value={getDateString(order?.placedTime)}
-                sx={styles.textField}
-                inputProps={{
-                  readOnly: true,
-                  style: {
-                    userSelect: 'none',
+                disabled
+                sx={{
+                  ...styles.textField,
+                  width: '100%',
+                  '.MuiInputBase-input.Mui-disabled': {
+                    WebkitTextFillColor: 'white',
                   },
                 }}
+                aria-readonly='true'
+                variant='outlined'
               />
               <TextField
                 id='remainingTime'
                 label='Remaining time'
                 value={order?.remainingTime}
-                sx={styles.textField}
-                inputProps={{
-                  readOnly: true,
-                  style: {
-                    userSelect: 'none',
+                disabled
+                sx={{
+                  ...styles.textField,
+                  width: '100%',
+                  '.MuiInputBase-input.Mui-disabled': {
+                    WebkitTextFillColor: 'white',
                   },
                 }}
+                aria-readonly='true'
+                variant='outlined'
               />
             </Box>
           </Paper>

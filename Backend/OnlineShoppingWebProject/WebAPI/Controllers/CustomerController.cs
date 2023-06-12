@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
 
 		[HttpDelete("order")]
 		[Authorize(Roles = "Customer")]
-		public IActionResult CancelOrder(long orderId)
+		public IActionResult CancelOrder([FromQuery]long orderId)
 		{
 			try
 			{

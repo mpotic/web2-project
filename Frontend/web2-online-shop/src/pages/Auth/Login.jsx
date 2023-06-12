@@ -2,6 +2,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useContext, useRef } from 'react';
 
 import {
+  Box,
   Button,
   Container,
   Link,
@@ -16,6 +17,7 @@ import styles from '../../style/centerFormStyles';
 import { toasterUtil as toaster } from '../../utils/toasterUtil';
 import UserContext from '../../context/UserContext';
 import useServices from '../../services/useServices';
+import GoogleLoginApi from '../../components/GoogleLogin';
 
 const Login = () => {
   const user = useRef(userInit);
@@ -75,6 +77,7 @@ const Login = () => {
           />
           <TextField
             placeholder='Password'
+            type='password'
             value={user.password}
             sx={{ width: '100%' }}
             error={validity.password.error}
@@ -99,6 +102,9 @@ const Login = () => {
             </Link>
             !
           </Typography>
+          <Box sx={{ marginTop: '15px' }}>
+            <GoogleLoginApi />
+          </Box>
         </Paper>
       </Container>
       <MyBackdrop open={isLoading} />

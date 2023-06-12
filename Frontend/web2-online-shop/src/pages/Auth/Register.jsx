@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Button,
@@ -30,6 +31,7 @@ const Register = () => {
   const [isSelected, setIsSelected] = useState(false);
   const [validity, setValidity] = useState(fieldValidity);
   const { registerRequest, isLoading, error, statusCode } = useServices();
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -50,10 +52,11 @@ const Register = () => {
       return;
     } else if (statusCode === 200 && !error) {
       toaster.handleSuccess('Successfully registered!');
+      navigate('/login');
     } else if (statusCode !== 200 && error) {
       toaster.handleError(statusCode, error);
     }
-  }, [isLoading, statusCode, error]);
+  }, [isLoading, statusCode, error, navigate]);
 
   return (
     <>
@@ -88,6 +91,7 @@ const Register = () => {
             <TextField
               placeholder='Password'
               id='password'
+              type='password'
               error={validity.password.error}
               helperText={validity.password.helper}
               sx={styles.textField}
@@ -99,6 +103,7 @@ const Register = () => {
             <TextField
               placeholder='Repeat password'
               id='repeat-password'
+              type='password'
               error={validity.repeatPassword.error}
               helperText={validity.repeatPassword.helper}
               sx={styles.textField}

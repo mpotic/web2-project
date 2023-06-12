@@ -215,7 +215,7 @@ namespace WebAPI.Controllers
 
 		[HttpDelete("article")]
 		[Authorize(Roles = "Seller")]
-		public IActionResult DeleteArticle([FromBody] string name)
+		public IActionResult DeleteArticle([FromQuery] string name)
 		{
 			try
 			{

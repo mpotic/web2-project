@@ -199,7 +199,7 @@ namespace Business.Services
 			}
 
 			var image = sellerHelper.GetArticleProductImage(article);
-			ArticleInfoDto articleDto = new ArticleInfoDto(article.Name, article.Description, article.Quantity, article.Price, image);
+			ArticleInfoDto articleDto = new ArticleInfoDto(article.Id, article.Name, article.Description, article.Quantity, article.Price, image);
 			operationResult = new ServiceOperationResult(true, articleDto);
 
 			return operationResult;
@@ -268,7 +268,7 @@ namespace Business.Services
 				return operationResult;
 			}
 
-			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.Name == articleName && x.Id == seller.Id);
+			IArticle article = _unitOfWork.ArticleRepository.FindFirst(x => x.Name == articleName && x.SellerId == seller.Id);
 			if (article == null)
 			{
 				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.NotFound, "The article doesn't exist!");

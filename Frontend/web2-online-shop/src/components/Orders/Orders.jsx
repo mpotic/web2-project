@@ -12,7 +12,14 @@ import styles from '../../style/centerFormStyles';
 import { getDateString } from '../../utils/dateTimeUtils';
 import NoData from '../NoData';
 
-const Orders = ({ role, data, hasButton, buttonCallback, buttonText }) => {
+const Orders = ({
+  role,
+  data,
+  hasButton,
+  buttonCallback,
+  buttonText,
+  cancelOrderCallback,
+}) => {
   const userRole = role.toLowerCase();
 
   return (
@@ -31,18 +38,42 @@ const Orders = ({ role, data, hasButton, buttonCallback, buttonText }) => {
             >
               <TableHead>
                 <TableRow>
-                  <TableCell align='center'>Id </TableCell>
-                  <TableCell align='center'>Comment </TableCell>
-                  <TableCell align='center'>Address</TableCell>
-                  <TableCell align='center'>Total price</TableCell>
-                  <TableCell align='center'>Time placed</TableCell>
+                  <TableCell align='center' sx={{ fontSize: '18px' }}>
+                    Id{' '}
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '18px' }}>
+                    Comment{' '}
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '18px' }}>
+                    Address
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '18px' }}>
+                    Total price
+                  </TableCell>
+                  <TableCell align='center' sx={{ fontSize: '18px' }}>
+                    Time placed
+                  </TableCell>
                   {userRole === 'admin' && (
-                    <TableCell align='center'>Status</TableCell>
+                    <TableCell align='center' sx={{ fontSize: '18px' }}>
+                      Status
+                    </TableCell>
                   )}
                   {userRole !== 'admin' && (
-                    <TableCell align='center'>Remaining time</TableCell>
+                    <TableCell align='center' sx={{ fontSize: '18px' }}>
+                      Remaining time
+                    </TableCell>
                   )}
-                  {hasButton && <TableCell align='center'>Action</TableCell>}
+                  {hasButton && (
+                    <TableCell
+                      align='center'
+                      sx={{ fontSize: '18px' }}
+                      colspan={
+                        userRole === 'customer' && cancelOrderCallback ? 2 : 1
+                      }
+                    >
+                      Action
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -82,6 +113,21 @@ const Orders = ({ role, data, hasButton, buttonCallback, buttonText }) => {
                         </Button>
                       </TableCell>
                     )}
+                    {hasButton &&
+                      userRole === 'customer' &&
+                      cancelOrderCallback && (
+                        <TableCell align='center'>
+                          <Button
+                            variant='contained'
+                            color='secondary'
+                            onClick={(e) => {
+                              cancelOrderCallback(row.id);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </TableCell>
+                      )}
                   </TableRow>
                 ))}
               </TableBody>

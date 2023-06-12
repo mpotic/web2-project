@@ -2,14 +2,17 @@
 {
 	public class ArticleInfoDto : IDto
 	{
-		public ArticleInfoDto(string name, string description, int quantity, double price, byte[] productImage)
+		public ArticleInfoDto(long articleId, string name, string description, int quantity, double price, byte[] productImage)
 		{
+			Id = articleId;
 			Name = name;
 			Description = description;
 			Quantity = quantity;
 			Price = price;
 			ProductImage = productImage;
 		}
+
+		public long Id { get; set; }
 
 		public string Name { get; set; }
 

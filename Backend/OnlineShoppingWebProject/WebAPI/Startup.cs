@@ -185,8 +185,6 @@ namespace WebAPI
 			services.AddScoped<IAdminService, AdminService>();
 
 			services.AddScoped<ICustomerService, CustomerService>();
-
-			services.AddScoped<IOrderService, OrderService>();
 		}
 	}
 }

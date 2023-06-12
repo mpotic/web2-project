@@ -80,14 +80,28 @@ const AllSellers = () => {
           >
             <TableHead>
               <TableRow>
-                <TableCell align='center'>Profile image </TableCell>
-                <TableCell align='center'>Username </TableCell>
-                <TableCell align='center'>Email</TableCell>
-                <TableCell align='center'>Firstname</TableCell>
-                <TableCell align='center'>Lastname</TableCell>
-                <TableCell align='center'>Address</TableCell>
-                <TableCell align='center'>Birthdate</TableCell>
-                <TableCell align='center' colSpan={2}>
+                <TableCell align='center' sx={{ fontSize: '18px' }}>
+                  Profile image
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: '18px' }}>
+                  Username
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: '18px' }}>
+                  Email
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: '18px' }}>
+                  Firstname
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: '18px' }}>
+                  Lastname
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: '18px' }}>
+                  Address
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: '18px' }}>
+                  Birthdate
+                </TableCell>
+                <TableCell align='center' sx={{ fontSize: '18px' }} colSpan={2}>
                   Status
                 </TableCell>
               </TableRow>

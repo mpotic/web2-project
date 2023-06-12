@@ -10,15 +10,20 @@ namespace Data.Repository
 {
 	public class ItemRepository : GenericRepository<Item>, IItemRepository
 	{
+		private readonly object balanceLock = new object();
+
 		public ItemRepository(OnlineShopDbContext context) : base(context)
 		{
 		}
 
 		public IEnumerable<Item> FindAllIncludeArticles(Expression<Func<Item, bool>> expression)
 		{
-			var result = _context.Set<Item>().Include(item => item.Article).Where(expression).ToList();
+			lock (balanceLock)
+			{
+				var result = _context.Set<Item>().Include(item => item.Article).Where(expression).ToList();
 
-			return result;
+				return result;
+			}
 		}
 	}
 }

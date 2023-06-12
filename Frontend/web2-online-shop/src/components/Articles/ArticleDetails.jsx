@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import {
   Container,
@@ -24,6 +24,7 @@ const ArticleDetails = () => {
   const [fetchingArticle, setFetchingArticle] = useState(true);
   const [updatingProductImage, setUpdatingProductImage] = useState(false);
   const [updatingArticle, setUpdatingArticle] = useState(false);
+  const [deletingArticle, setDeletingArticle] = useState(false);
   const [productImage, setProductImage] = useState(false);
   const userContext = useContext(UserContext);
   const { name } = useParams();
@@ -32,11 +33,13 @@ const ArticleDetails = () => {
     updateArticleProductImageRequest,
     updateArticleRequest,
     clearRequest,
+    deleteArticleRequest,
     isLoading,
     error,
     statusCode,
     data,
   } = useServices();
+  const navigate = useNavigate();
 
   useEffect(() => {
     getSellerArticleDetailsRequest(name);
@@ -57,7 +60,7 @@ const ArticleDetails = () => {
       setUpdatingArticle(false);
       setFetchingArticle(true);
       clearRequest();
-      getSellerArticleDetailsRequest(name);
+      getSellerArticleDetailsRequest(article.newName);
       toaster.handleSuccess('Successfully updated article info!');
     } else if (statusCode === 200 && !error && updatingProductImage) {
       setUpdatingProductImage(false);
@@ -65,6 +68,11 @@ const ArticleDetails = () => {
       clearRequest();
       getSellerArticleDetailsRequest(name);
       toaster.handleSuccess('Successfully updated product image!');
+    } else if (statusCode === 200 && !error && deletingArticle) {
+      setDeletingArticle(false);
+      clearRequest();
+      toaster.handleSuccess('Successfully deleted the article!');
+      navigate('/articles');
     } else if (statusCode !== 200 && error) {
       toaster.handleError(statusCode, error);
       clearRequest();
@@ -134,11 +142,14 @@ const ArticleDetails = () => {
             <TextField
               id='name'
               label='Name'
-              value={article?.name}
+              value={article?.newName}
               sx={{ ...styles.textField, width: '100%' }}
               onChange={(e) => {
                 setArticle((old) => {
-                  return { ...old, newName: e.target.value };
+                  return {
+                    ...old,
+                    newName: e.target.value,
+                  };
                 });
               }}
             />
@@ -182,22 +193,38 @@ const ArticleDetails = () => {
                 }}
               />
             </Box>
-            {role === 'seller' && (
-              <Button
-                sx={{ width: '70%', marginTop: '15px', alignSelf: 'center' }}
-                variant='contained'
-                type='submit'
-                onClick={(event) => {
-                  setUpdatingArticle(true);
-                  updateArticleRequest({
-                    ...article,
-                    currentName: article.name,
-                  });
-                }}
-              >
-                Update
-              </Button>
-            )}
+            <Box sx={{ ...styles.rowBox, width: '100%' }}>
+              {role === 'seller' && (
+                <Button
+                  sx={{ width: '40%', marginTop: '15px', alignSelf: 'center' }}
+                  variant='contained'
+                  type='submit'
+                  onClick={(event) => {
+                    setUpdatingArticle(true);
+                    updateArticleRequest({
+                      ...article,
+                      currentName: article.name,
+                    });
+                  }}
+                >
+                  Update
+                </Button>
+              )}
+              {role === 'seller' && (
+                <Button
+                  sx={{ width: '40%', marginTop: '15px', alignSelf: 'center' }}
+                  variant='contained'
+                  color='secondary'
+                  type='submit'
+                  onClick={(event) => {
+                    deleteArticleRequest(article.name);
+                    setDeletingArticle(true);
+                  }}
+                >
+                  Delete
+                </Button>
+              )}
+            </Box>
           </Paper>
         </Container>
       )}

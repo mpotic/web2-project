@@ -7,8 +7,7 @@ using Business.Util;
 using Data.Models;
 using Data.UnitOfWork;
 using Google.Apis.Auth;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Business.Services
 {
@@ -26,12 +25,15 @@ namespace Business.Services
 
 		private IFiledValidationHelper validationHelper = new FieldValidationHelper();
 
+		IGoogleHelper googleHelper;
+
 		public UserAuthService(IUserTokenIssuer userTokenIssuer, IUnitOfWork unitOfWork, IMapper mapper)
 		{
 			_tokenIssuer = userTokenIssuer;
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			userHelper = new UserHelper(_unitOfWork);
+			googleHelper = new GoogleHelper(userHelper);
 		}
 
 		public IServiceOperationResult LoginUser(LoginUserDto loginDto)
@@ -118,53 +120,43 @@ namespace Business.Services
 			return operationResult;
 		}
 
-		public IServiceOperationResult GoogleLogin(GoogleJsonWebSignature.Payload payload)
+		public async Task<IServiceOperationResult> GoogleLogin(string idToken)
 		{
 			IServiceOperationResult operationResult;
 
-			Customer customer = FromGoogleToken(payload);
+			GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+			Customer customer = googleHelper.GetCustomerFromGoogleToken(payload);
+			IUser existingUser = userHelper.FindUserByEmail(customer.Email);
 
-			_unitOfWork.CustomerRepository.Add(customer);
-			_unitOfWork.Commit();
+			if (existingUser is Admin || existingUser is Seller)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.Unauthorized, "Google authentication can only be used by customers!");
 
 			operationResult = new ServiceOperationResult(true);
 
-			return operationResult;
-		}
-
-		public Customer FromGoogleToken(GoogleJsonWebSignature.Payload payload)
-		{
-			var user = new Customer
-			{
-				Id = long.Parse(payload.Subject),
-				Firstname = payload.GivenName,
-				Lastname = payload.FamilyName,
-				Username = payload.Name,
-				Email = payload.Email,
-			};
-
-			userHelper.UploadProfileImage(user, DownloadProfileImage(payload.Picture));
-
-			return user;
-		}
-
-		private IFormFile DownloadProfileImage(string imageUrl)
-		{
-			using (var httpClient = new HttpClient())
-			{
-				var response = httpClient.GetAsync(imageUrl).Result;
-
-				if (response.IsSuccessStatusCode)
-				{
-					var stream = response.Content.ReadAsStreamAsync().Result;
-
-					var formFile = new FormFile(stream, 0, stream.Length, "profileImage", "profile.jpg");
-
-					return formFile;
-				}
+				return operationResult;
 			}
 
-			return null;
+			string token = "";
+			if (existingUser is Customer)
+			{
+				token = _tokenIssuer.IssueUserJwt(existingUser);
+			}
+			else if (existingUser == null)
+			{
+				token = _tokenIssuer.IssueUserJwt(customer);
+			}
+
+			if (token == null)
+			{
+				operationResult = new ServiceOperationResult(false, ServiceOperationErrorCode.InternalServerError);
+
+				return operationResult;
+			}
+
+			operationResult = new ServiceOperationResult(true, new JwtDto(token));
+
+			return operationResult;
 		}
 
 

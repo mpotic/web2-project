@@ -22,7 +22,6 @@ namespace Data.Repository
 			lock (balanceLock)
 			{
 				_context.Set<T>().Add(entity);
-
 			}
 		}
 

@@ -2,6 +2,7 @@
 using Business.Result;
 using Business.Services;
 using Google.Apis.Auth;
+using Google.Apis.Auth.OAuth2.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -69,14 +70,18 @@ namespace WebAPI.Controllers
 		}
 
 		[HttpPost("google-login")]
-		public async Task<IActionResult> GoogleLogin(string idToken)
+		public async Task<IActionResult> GoogleLogin(GoogleToken token)
 		{
 			try
 			{
-				GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
-				_userAuthService.GoogleLogin(payload);
+				IServiceOperationResult operationResult = await _userAuthService.GoogleLogin(token.Token);
 
-				return Ok();
+				if (!operationResult.IsSuccessful)
+				{
+					return StatusCode((int)operationResult.ErrorCode, operationResult.ErrorMessage);
+				}
+
+				return Ok(operationResult.Dto);
 			}
 			catch (InvalidJwtException ex)
 			{

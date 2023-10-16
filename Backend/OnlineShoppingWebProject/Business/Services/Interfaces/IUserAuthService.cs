@@ -1,6 +1,6 @@
 ﻿using Business.Dto.Auth;
 using Business.Result;
-using Google.Apis.Auth;
+using System.Threading.Tasks;
 
 namespace Business.Services
 {
@@ -10,6 +10,6 @@ namespace Business.Services
 
 		IServiceOperationResult RegisterUser(RegisterUserDto registerDto);
 
-		IServiceOperationResult GoogleLogin(GoogleJsonWebSignature.Payload payload);
+		Task<IServiceOperationResult> GoogleLogin(string idToken);
 	}
 }

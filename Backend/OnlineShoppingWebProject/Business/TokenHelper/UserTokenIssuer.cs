@@ -43,7 +43,7 @@ namespace Business.TokenHelper
 		private string IssueAdminJwt(IAdmin admin)
 		{
 			List<Claim> claims = new List<Claim>() 
-			{ 
+			{
 				new Claim(ClaimTypes.Role, UserType.Admin.ToString()),
 				new Claim("role", UserType.Admin.ToString()),
 				new Claim("id", admin.Id.ToString()),

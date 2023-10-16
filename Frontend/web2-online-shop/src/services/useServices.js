@@ -125,7 +125,11 @@ const useServices = () => {
 
   const getAdminOrderDetailsRequest = useCallback(
     (id) => {
+<<<<<<< HEAD
       getRequest(baseUrl + '/admin/order' + '?id=' + id);
+=======
+      getRequest(baseUrl + '/admin/order?id=' + id);
+>>>>>>> master
     },
     [getRequest]
   );
@@ -218,8 +222,13 @@ const useServices = () => {
     [deleteRequest]
   );
 
+<<<<<<< HEAD
   const googleLogin = useCallback(() => {
     postRequest(googleLoginUrl);
+=======
+  const googleLogin = useCallback((gToken) => {
+    postRequest(googleLoginUrl, gToken);
+>>>>>>> master
   }, [postRequest]);
 
   return {

@@ -12,7 +12,7 @@ namespace Data.Configurations
 
 			builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
-			builder.HasMany(x => x.Items)
+			builder.HasMany(order => order.Items)
 				.WithOne(x => x.Order)
 				.HasForeignKey(x => x.OrderId)
 				.OnDelete(DeleteBehavior.Cascade);

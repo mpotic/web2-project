@@ -42,7 +42,7 @@ namespace Business.Services
 
 				return operationResult;
 			}
-
+			
 			UserInfoDto userDto = _mapper.Map<UserInfoDto>(user);
 			operationResult = new ServiceOperationResult(true, userDto);
 

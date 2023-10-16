@@ -35,7 +35,7 @@ namespace WebAPI
 		public void ConfigureServices(IServiceCollection services)
 		{
 			ConfigureSwagger(services);
-
+			
 			ConfigureAuthentication(services);
 
 			ConfigureCors(services);

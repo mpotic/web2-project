@@ -17,25 +17,15 @@ import styles from '../../style/centerFormStyles';
 import { toasterUtil as toaster } from '../../utils/toasterUtil';
 import UserContext from '../../context/UserContext';
 import useServices from '../../services/useServices';
-<<<<<<< HEAD
-import GoogleLoginApi from '../../components/GoogleLogin';
-=======
 import GoogleLoginApi from './GoogleLogin';
->>>>>>> master
 
 const Login = () => {
   const user = useRef(userInit);
   const [validity, setValidity] = useState(fieldValidity);
-<<<<<<< HEAD
-  const { loginRequest, isLoading, error, statusCode, data } = useServices();
-  const userContext = useContext(UserContext);
-  const navigate = useNavigate();
-=======
   const { loginRequest, isLoading, error, statusCode, data, googleLogin } = useServices();
   const userContext = useContext(UserContext);
   const navigate = useNavigate();
   const [isRequestMade, setIsRequestMade] = useState(false);
->>>>>>> master
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -49,16 +39,6 @@ const Login = () => {
     }
 
     loginRequest(user.current);
-<<<<<<< HEAD
-  };
-
-  useEffect(() => {
-    if (isLoading) {
-      return;
-    } else if (statusCode === 200 && !error) {
-      toaster.handleSuccess('Successfuly logged in!');
-    } else if (statusCode !== 200 && error) {
-=======
     setIsRequestMade(true);
   };
 
@@ -68,7 +48,6 @@ const Login = () => {
     } else if (statusCode === 200 && !error && data) {
       toaster.handleSuccess('Successfuly logged in!');
     } else if (statusCode !== 200 || error || !data) {
->>>>>>> master
       toaster.handleError(statusCode, error);
     }
   }, [isLoading, statusCode, error]);
@@ -80,8 +59,6 @@ const Login = () => {
     }
   }, [statusCode, data, userContext, navigate]);
 
-<<<<<<< HEAD
-=======
   const handleGoogleLogin = (gToken, errorMessage) =>{
     if(!gToken || errorMessage){
       toaster.handleError('Google login failed:', error);
@@ -94,7 +71,6 @@ const Login = () => {
     setIsRequestMade(true);
   }
 
->>>>>>> master
   return (
     <>
       <Container sx={{ ...styles.container, marginTop: '100px' }}>
@@ -141,11 +117,7 @@ const Login = () => {
             !
           </Typography>
           <Box sx={{ marginTop: '15px' }}>
-<<<<<<< HEAD
-            <GoogleLoginApi />
-=======
             <GoogleLoginApi handleGoogleLogin={handleGoogleLogin}/>
->>>>>>> master
           </Box>
         </Paper>
       </Container>

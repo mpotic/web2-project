@@ -148,10 +148,6 @@ const CustomerOrder = () => {
                   WebkitTextFillColor: 'white',
                 },
               }}
-<<<<<<< HEAD
-              type='email'
-=======
->>>>>>> master
               aria-readonly='true'
               variant='outlined'
             />

@@ -44,11 +44,7 @@ const UploadButton = ({
 
       reader.readAsDataURL(file);
     } catch (e) {
-<<<<<<< HEAD
-      console.log(e);
-=======
       //console.log(e);
->>>>>>> master
     }
   };
 
